@@ -9,6 +9,11 @@ const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
+// Render (and most cloud hosts) sit behind a reverse proxy that sets the
+// X-Forwarded-For header. Trust the first proxy hop so express-rate-limit
+// can correctly identify the real client IP instead of erroring out.
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 const apiLimiter = rateLimit({
