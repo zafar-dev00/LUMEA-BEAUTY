@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  /* Premium cosmetic color palette */
+  --color-ivory: #fbf8f4;
+  --color-cream: #f5ede4;
+  --color-blush: #f3dfe0;
+  --color-pink-soft: #eec9cf;
+  --color-nude: #e3c2ab;
+  --color-nude-dark: #c9a084;
+  --color-rose: #b76e79;
+  --color-rose-dark: #9c5a64;
+  --color-charcoal: #2b2622;
+  --color-charcoal-soft: #4a423c;
+  --color-gold: #c9a15a;
+
+  --font-display: "Cormorant Garamond", "Playfair Display", serif;
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ivory text-charcoal font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .tracking-luxe {
+    letter-spacing: 0.18em;
+  }
+  .container-luxe {
+    @apply max-w-7xl mx-auto px-5 sm:px-8 lg:px-12;
+  }
+}

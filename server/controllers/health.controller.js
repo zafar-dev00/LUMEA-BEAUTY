@@ -1,0 +1,9 @@
+// GET /api/health
+const getHealth = (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'LUMÉA BEAUTY API is running',
+  });
+};
+
+module.exports = { getHealth };
