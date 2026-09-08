@@ -1,5 +1,12 @@
 const nodemailer = require('nodemailer');
 const { smtp } = require('../config/env');
+const dns = require('dns');
+
+// Force Node.js to resolve IPv4 addresses first.
+// Prevents ENETUNREACH errors on cloud environments (like Render) that lack IPv6 outbound routing.
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 let transporter;
 
@@ -9,8 +16,6 @@ const getTransporter = () => {
   }
 
   if (!transporter) {
-    // If the host is Gmail or ends in gmail.com, using service: 'gmail'
-    // avoids port 465/587 socket handshake timeouts on cloud providers like Render.
     const isGmail = smtp.host && smtp.host.toLowerCase().includes('gmail');
 
     transporter = nodemailer.createTransport(
