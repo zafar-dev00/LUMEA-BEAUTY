@@ -1,61 +1,10 @@
-const nodemailer = require('nodemailer');
-const { smtp } = require('../config/env');
-const dns = require('dns');
+const { Resend } = require('resend');
 
-// Force Node.js to resolve IPv4 addresses first.
-// Prevents ENETUNREACH errors on cloud environments (like Render) that lack IPv6 outbound routing.
-if (typeof dns.setDefaultResultOrder === 'function') {
-  dns.setDefaultResultOrder('ipv4first');
-}
+const resendApiKey = process.env.RESEND_API_KEY;
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-let transporter;
-
-const getTransporter = () => {
-  if (!smtp.user || !smtp.pass) {
-    return null;
-  }
-
-  if (!transporter) {
-    const isGmail = smtp.host && smtp.host.toLowerCase().includes('gmail');
-
-    transporter = nodemailer.createTransport(
-      isGmail
-        ? {
-            service: 'gmail',
-            auth: {
-              user: smtp.user,
-              pass: smtp.pass,
-            },
-            tls: {
-              rejectUnauthorized: false,
-            },
-          }
-        : {
-            host: smtp.host,
-            port: Number(smtp.port) || 587,
-            secure: smtp.secure === true || smtp.secure === 'true',
-            auth: {
-              user: smtp.user,
-              pass: smtp.pass,
-            },
-            tls: {
-              rejectUnauthorized: false,
-            },
-          }
-    );
-
-    // Verify SMTP connection when initialized
-    transporter.verify((err) => {
-      if (err) {
-        console.error('❌ Nodemailer transporter verification error:', err.message);
-      } else {
-        console.log('✔ Nodemailer is ready to send emails');
-      }
-    });
-  }
-
-  return transporter;
-};
+// Uses Resend's free verified sandbox address; works immediately without DNS setup
+const FROM_EMAIL = 'LUMÉA BEAUTY <onboarding@resend.dev>';
 
 const escapeHtml = (value) => String(value ?? '')
   .replace(/&/g, '&amp;')
@@ -67,9 +16,8 @@ const escapeHtml = (value) => String(value ?? '')
 const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`;
 
 const sendOrderConfirmation = async (order) => {
-  const mailTransporter = getTransporter();
-  if (!mailTransporter) {
-    throw new Error('SMTP is not configured');
+  if (!resend) {
+    throw new Error('Resend email service is not configured (missing RESEND_API_KEY)');
   }
 
   const itemLines = order.items
@@ -89,9 +37,9 @@ const sendOrderConfirmation = async (order) => {
   const customerName = escapeHtml(order.customer.fullName);
   const orderId = escapeHtml(order.orderId);
 
-  await mailTransporter.sendMail({
-    from: smtp.from,
-    to: order.customer.email,
+  const { error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [order.customer.email],
     subject: `Order ${order.orderId} is ready for dispatch`,
     text: [
       `Hello ${order.customer.fullName},`,
@@ -105,7 +53,7 @@ const sendOrderConfirmation = async (order) => {
       `Total: ${formatMoney(order.total)}`,
       `Payment: ${order.payment.method}`,
       '',
-      `Shipping to: ${[order.address.house, order.address.street, order.address.city, order.address.state, order.address.pincode].filter(Boolean).join(', ')}`,
+      `Shipping to: ${address}`,
     ].join('\n'),
     html: `
       <div style="margin:0;background:#f3f8f4;padding:32px 16px;font-family:Arial,sans-serif;color:#25312b">
@@ -129,20 +77,28 @@ const sendOrderConfirmation = async (order) => {
         </div>
       </div>`,
   });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 };
 
 const sendLoginOtp = async (email, otp) => {
-  const mailTransporter = getTransporter();
-  if (!mailTransporter) {
-    throw new Error('SMTP is not configured');
+  if (!resend) {
+    throw new Error('Resend email service is not configured (missing RESEND_API_KEY)');
   }
 
-  await mailTransporter.sendMail({
-    from: smtp.from,
-    to: email,
+  const { error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: [email],
     subject: 'Your LUMEA login code',
     text: `Your LUMEA login code is ${otp}. It expires in 10 minutes. If you did not request this code, you can ignore this email.`,
   });
+
+  if (error) {
+    console.error('❌ Resend API Error:', error);
+    throw new Error(error.message);
+  }
 };
 
 module.exports = { sendOrderConfirmation, sendLoginOtp };

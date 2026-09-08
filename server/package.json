@@ -21,6 +21,7 @@
     "mongoose": "^8.5.2",
     "nodemailer": "^9.0.5",
     "razorpay": "^2.9.8",
+    "resend": "^6.26.0",
     "seed": "^0.4.4"
   },
   "devDependencies": {
