@@ -9,11 +9,43 @@ const getTransporter = () => {
   }
 
   if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: smtp.host,
-      port: smtp.port,
-      secure: smtp.secure,
-      auth: { user: smtp.user, pass: smtp.pass },
+    // If the host is Gmail or ends in gmail.com, using service: 'gmail'
+    // avoids port 465/587 socket handshake timeouts on cloud providers like Render.
+    const isGmail = smtp.host && smtp.host.toLowerCase().includes('gmail');
+
+    transporter = nodemailer.createTransport(
+      isGmail
+        ? {
+            service: 'gmail',
+            auth: {
+              user: smtp.user,
+              pass: smtp.pass,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+          }
+        : {
+            host: smtp.host,
+            port: Number(smtp.port) || 587,
+            secure: smtp.secure === true || smtp.secure === 'true',
+            auth: {
+              user: smtp.user,
+              pass: smtp.pass,
+            },
+            tls: {
+              rejectUnauthorized: false,
+            },
+          }
+    );
+
+    // Verify SMTP connection when initialized
+    transporter.verify((err) => {
+      if (err) {
+        console.error('❌ Nodemailer transporter verification error:', err.message);
+      } else {
+        console.log('✔ Nodemailer is ready to send emails');
+      }
     });
   }
 
@@ -73,7 +105,7 @@ const sendOrderConfirmation = async (order) => {
     html: `
       <div style="margin:0;background:#f3f8f4;padding:32px 16px;font-family:Arial,sans-serif;color:#25312b">
         <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #dce8df">
-          <div style="padding:24px 28px;border-bottom:3px solid #53c6a2;color:#1a9b83;font-size:24px;font-weight:700;letter-spacing:1px">LUMEA BEAUTY</div>
+          <div style="padding:24px 28px;border-bottom:3px solid #53c6a2;color:#1a9b83;font-size:24px;font-weight:700;letter-spacing:1px">LUMÉA BEAUTY</div>
           <div style="padding:28px">
             <p style="margin:0 0 8px;color:#53ad8d;font-weight:700">Hello ${customerName},</p>
             <h1 style="margin:0 0 12px;font-size:26px;font-weight:500">Your order is ready for dispatch</h1>
