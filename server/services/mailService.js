@@ -1,11 +1,14 @@
-const brevo = require('@getbrevo/brevo');
+const Brevo = require('@getbrevo/brevo');
 
-// Initialize Brevo API client
-const defaultClient = brevo.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
+const apiInstance = new Brevo.TransactionalEmailsApi();
 
-const apiInstance = new brevo.TransactionalEmailsApi();
+// Set API key safely
+if (process.env.BREVO_API_KEY) {
+  apiInstance.setApiKey(
+    Brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+}
 
 // Sender email must match your verified Brevo account email
 const SENDER = {
@@ -23,10 +26,6 @@ const escapeHtml = (value) =>
 
 const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`;
 
-/**
- * Sends a structured HTML order confirmation receipt.
- * @param {Object} order - Order object containing items, customer, address, payment, and totals.
- */
 const sendOrderConfirmation = async (order) => {
   if (!process.env.BREVO_API_KEY) {
     throw new Error('BREVO_API_KEY is not configured in environment variables');
@@ -57,10 +56,7 @@ const sendOrderConfirmation = async (order) => {
     .map(escapeHtml)
     .join(', ');
 
-  const customerName = escapeHtml(order.customer.fullName);
-  const orderId = escapeHtml(order.orderId);
-
-  const sendSmtpEmail = new brevo.SendSmtpEmail();
+  const sendSmtpEmail = new Brevo.SendSmtpEmail();
   sendSmtpEmail.subject = `Order ${order.orderId} is ready for dispatch`;
   sendSmtpEmail.sender = SENDER;
   sendSmtpEmail.to = [{ email: order.customer.email, name: order.customer.fullName }];
@@ -84,9 +80,9 @@ const sendOrderConfirmation = async (order) => {
       <div style="max-width:620px;margin:0 auto;background:#ffffff;border:1px solid #dce8df">
         <div style="padding:24px 28px;border-bottom:3px solid #53c6a2;color:#1a9b83;font-size:24px;font-weight:700;letter-spacing:1px">LUMÉA BEAUTY</div>
         <div style="padding:28px">
-          <p style="margin:0 0 8px;color:#53ad8d;font-weight:700">Hello ${customerName},</p>
+          <p style="margin:0 0 8px;color:#53ad8d;font-weight:700">Hello ${escapeHtml(order.customer.fullName)},</p>
           <h1 style="margin:0 0 12px;font-size:26px;font-weight:500">Your order is ready for dispatch</h1>
-          <p style="margin:0 0 24px;color:#68736d">Order <strong>${orderId}</strong> has been packed and is on its way to you.</p>
+          <p style="margin:0 0 24px;color:#68736d">Order <strong>${escapeHtml(order.orderId)}</strong> has been packed and is on its way to you.</p>
           <table style="width:100%;border-collapse:collapse;font-size:15px">${itemRows}
             <tr><td style="padding:18px 0 4px;color:#68736d">Subtotal</td><td style="padding:18px 0 4px;text-align:right">${formatMoney(order.subtotal)}</td></tr>
             <tr><td style="padding:4px 0;color:#68736d">Discount</td><td style="padding:4px 0;text-align:right">-${formatMoney(order.discount)}</td></tr>
@@ -101,25 +97,15 @@ const sendOrderConfirmation = async (order) => {
       </div>
     </div>`;
 
-  try {
-    return await apiInstance.sendTransacEmail(sendSmtpEmail);
-  } catch (error) {
-    console.error('❌ Brevo Order Email Delivery Error:', error.response?.body || error.message);
-    throw new Error(error.response?.body?.message || error.message);
-  }
+  return await apiInstance.sendTransacEmail(sendSmtpEmail);
 };
 
-/**
- * Sends a 6-digit verification code to the specified email address.
- * @param {string} email - Destination user email.
- * @param {string|number} otp - Generated OTP code.
- */
 const sendLoginOtp = async (email, otp) => {
   if (!process.env.BREVO_API_KEY) {
     throw new Error('BREVO_API_KEY is not configured in environment variables');
   }
 
-  const sendSmtpEmail = new brevo.SendSmtpEmail();
+  const sendSmtpEmail = new Brevo.SendSmtpEmail();
   sendSmtpEmail.subject = 'Your LUMÉA login code';
   sendSmtpEmail.sender = SENDER;
   sendSmtpEmail.to = [{ email: email.trim() }];
@@ -137,12 +123,7 @@ const sendLoginOtp = async (email, otp) => {
       </div>
     </div>`;
 
-  try {
-    return await apiInstance.sendTransacEmail(sendSmtpEmail);
-  } catch (error) {
-    console.error('❌ Brevo OTP Delivery Error:', error.response?.body || error.message);
-    throw new Error(error.response?.body?.message || error.message);
-  }
+  return await apiInstance.sendTransacEmail(sendSmtpEmail);
 };
 
 module.exports = { sendOrderConfirmation, sendLoginOtp };
