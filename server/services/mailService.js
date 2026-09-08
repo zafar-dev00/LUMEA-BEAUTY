@@ -1,6 +1,11 @@
-// Brevo Transactional Email REST API endpoint (No npm package required)
 const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
+// API Key with direct fallback
+const BREVO_KEY =
+  process.env.BREVO_API_KEY ||
+  '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';
+
+// Must match your registered Brevo account email
 const SENDER = {
   name: 'LUMÉA BEAUTY',
   email: process.env.BREVO_SENDER_EMAIL || 'thezafar0908@gmail.com',
@@ -17,15 +22,10 @@ const escapeHtml = (value) =>
 const formatMoney = (value) => `$${Number(value || 0).toFixed(2)}`;
 
 const sendBrevoEmail = async ({ to, subject, htmlContent, textContent }) => {
-  const apiKey = process.env.BREVO_API_KEY;
-  if (!apiKey) {
-    throw new Error('BREVO_API_KEY is not configured in Render Environment Variables');
-  }
-
   const response = await fetch(BREVO_API_URL, {
     method: 'POST',
     headers: {
-      'api-key': apiKey.trim(),
+      'api-key': BREVO_KEY.trim(),
       'Content-Type': 'application/json',
       Accept: 'application/json',
     },
@@ -41,10 +41,11 @@ const sendBrevoEmail = async ({ to, subject, htmlContent, textContent }) => {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    console.error('❌ Brevo API Error Response:', data);
+    console.error('❌ Brevo API Delivery Failure:', data);
     throw new Error(data.message || `Brevo request failed with status ${response.status}`);
   }
 
+  console.log('✅ Email sent successfully via Brevo:', data);
   return data;
 };
 
