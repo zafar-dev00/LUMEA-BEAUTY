@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Menu, X, Search, User, Heart, ShoppingBag, ArrowRight } from "lucide-react";
+import { Menu, X, Search, User, Heart, ShoppingBag, ArrowRight, Home } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 
 const links = [
+  { label: "Home", href: "/#hero", isHome: true },
   { label: "Skincare", href: "/shop?category=Skincare" },
   { label: "Makeup", href: "/shop?category=Makeup" },
   { label: "Fragrance", href: "/shop?category=Fragrance" },
@@ -23,21 +24,21 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Auto-close menu drawer and dropdowns on any route change
+  // Auto-close menu drawer and dropdowns on route changes
   useEffect(() => {
     setOpen(false);
     setAccountOpen(false);
   }, [location.pathname, location.search]);
 
-  // Lock background body scroll when mobile drawer is open
+  // Lock background scroll when drawer is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "";
     };
   }, [open]);
 
@@ -50,6 +51,21 @@ export default function Navbar() {
     document.addEventListener("mousedown", closeOnOutsideClick);
     return () => document.removeEventListener("mousedown", closeOnOutsideClick);
   }, []);
+
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    setOpen(false);
+
+    if (location.pathname === "/") {
+      const heroEl = document.getElementById("hero") || document.querySelector("main") || document.body;
+      heroEl.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 100);
+    }
+  };
 
   const handleLogout = async () => {
     setAccountOpen(false);
@@ -80,16 +96,28 @@ export default function Navbar() {
           LUMÉA
         </Link>
 
+        {/* Desktop Navigation Links */}
         <ul className="hidden lg:flex items-center gap-10 text-sm uppercase tracking-luxe text-charcoal-soft">
           {links.map((link) => (
             <li key={link.label}>
-              <Link to={link.href} className="hover:text-rose transition-colors">
-                {link.label}
-              </Link>
+              {link.isHome ? (
+                <button
+                  type="button"
+                  onClick={handleHomeClick}
+                  className="uppercase tracking-luxe hover:text-rose transition-colors"
+                >
+                  {link.label}
+                </button>
+              ) : (
+                <Link to={link.href} className="hover:text-rose transition-colors">
+                  {link.label}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
 
+        {/* Action icons */}
         <div className="flex items-center gap-4 text-charcoal">
           <Link
             to="/shop"
@@ -181,20 +209,21 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Drawer */}
+      {/* Full-Screen Mobile Drawer System */}
       {open && (
-        <div className="fixed inset-0 z-[100] lg:hidden">
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-[999] lg:hidden">
+          {/* Opaque dark backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-charcoal/70 backdrop-blur-sm transition-opacity"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Off-canvas panel */}
-          <div className="relative z-10 flex flex-col justify-between h-full w-[85%] max-w-xs bg-[#fbf9f6] p-6 shadow-2xl overflow-y-auto">
+          {/* Solid Drawer Container */}
+          <div className="relative z-10 flex flex-col justify-between h-full w-[85%] max-w-xs !bg-[#faf8f5] p-6 shadow-2xl overflow-y-auto">
             <div>
-              <div className="flex items-center justify-between pb-6 border-b border-nude/40">
+              {/* Drawer Top Header */}
+              <div className="flex items-center justify-between pb-5 border-b border-charcoal/10">
                 <span className="text-xl font-display tracking-luxe text-charcoal">
                   LUMÉA
                 </span>
@@ -207,19 +236,35 @@ export default function Navbar() {
                 </button>
               </div>
 
-              <ul className="flex flex-col gap-5 py-6 text-sm uppercase tracking-luxe text-charcoal-soft">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      to={link.href}
-                      onClick={() => setOpen(false)}
-                      className="block py-1 hover:text-rose transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-                <li className="pt-2 border-t border-nude/30">
+              {/* Navigation List */}
+              <ul className="flex flex-col gap-4 py-6 text-sm uppercase tracking-luxe text-charcoal-soft font-normal">
+                {/* Dedicated Home / Hero Button */}
+                <li>
+                  <button
+                    type="button"
+                    onClick={handleHomeClick}
+                    className="flex items-center gap-2.5 w-full text-left py-1 text-charcoal hover:text-rose transition-colors"
+                  >
+                    <Home size={16} />
+                    <span>Home</span>
+                  </button>
+                </li>
+
+                {links
+                  .filter((item) => !item.isHome)
+                  .map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        to={link.href}
+                        onClick={() => setOpen(false)}
+                        className="block py-1 hover:text-rose transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+
+                <li className="pt-3 border-t border-charcoal/10">
                   <Link
                     to="/wishlist"
                     onClick={() => setOpen(false)}
@@ -237,9 +282,10 @@ export default function Navbar() {
                     Bag {cartCount > 0 && `(${cartCount})`}
                   </Link>
                 </li>
+
                 {isAuthenticated ? (
                   <>
-                    <li className="pt-2 border-t border-nude/30">
+                    <li className="pt-3 border-t border-charcoal/10">
                       <Link
                         to="/account"
                         onClick={() => setOpen(false)}
@@ -279,7 +325,7 @@ export default function Navbar() {
                     </li>
                   </>
                 ) : (
-                  <li className="pt-2 border-t border-nude/30">
+                  <li className="pt-3 border-t border-charcoal/10">
                     <Link
                       to="/login"
                       onClick={() => setOpen(false)}
@@ -292,8 +338,8 @@ export default function Navbar() {
               </ul>
             </div>
 
-            {/* Bottom Menu Action Button */}
-            <div className="pt-6 border-t border-nude/40 mt-auto">
+            {/* Bottom Action Button */}
+            <div className="pt-5 border-t border-charcoal/10 mt-auto">
               <Link
                 to="/shop"
                 onClick={() => setOpen(false)}
