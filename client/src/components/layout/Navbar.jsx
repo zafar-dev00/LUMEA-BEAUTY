@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, Search, User, Heart, ShoppingBag } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Menu, X, Search, User, Heart, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
@@ -21,6 +21,25 @@ export default function Navbar() {
   const { wishlistCount } = useWishlist();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Auto-close menu drawer and dropdowns on any route change
+  useEffect(() => {
+    setOpen(false);
+    setAccountOpen(false);
+  }, [location.pathname, location.search]);
+
+  // Lock background body scroll when mobile drawer is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [open]);
 
   useEffect(() => {
     const closeOnOutsideClick = (e) => {
@@ -34,19 +53,20 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     setAccountOpen(false);
+    setOpen(false);
     await logout();
     navigate("/", { replace: true });
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-ivory/95 backdrop-blur border-b border-nude/40">
+    <header className="sticky top-0 z-40 bg-ivory/95 backdrop-blur border-b border-nude/40">
       <div className="border-b border-nude/40 bg-charcoal text-ivory text-center text-[11px] tracking-luxe uppercase py-2 px-4">
         Free shipping on all orders over $75
       </div>
 
       <nav className="container-luxe flex items-center justify-between h-20">
         <button
-          className="lg:hidden text-charcoal"
+          className="lg:hidden text-charcoal p-1 focus:outline-none"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
         >
@@ -161,108 +181,128 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile Drawer */}
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-[100] lg:hidden">
+          {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-charcoal/40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setOpen(false)}
+            aria-hidden="true"
           />
-          <div className="absolute left-0 top-0 h-full w-72 bg-ivory p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-8">
-              <span className="text-xl font-display tracking-luxe text-charcoal">
-                LUMÉA
-              </span>
-              <button onClick={() => setOpen(false)} aria-label="Close menu">
-                <X size={22} className="text-charcoal" />
-              </button>
-            </div>
-            <ul className="flex flex-col gap-6 text-sm uppercase tracking-luxe text-charcoal-soft">
-              {links.map((link) => (
-                <li key={link.label}>
+
+          {/* Off-canvas panel */}
+          <div className="relative z-10 flex flex-col justify-between h-full w-[85%] max-w-xs bg-[#fbf9f6] p-6 shadow-2xl overflow-y-auto">
+            <div>
+              <div className="flex items-center justify-between pb-6 border-b border-nude/40">
+                <span className="text-xl font-display tracking-luxe text-charcoal">
+                  LUMÉA
+                </span>
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                  className="p-1 text-charcoal hover:text-rose transition-colors"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              <ul className="flex flex-col gap-5 py-6 text-sm uppercase tracking-luxe text-charcoal-soft">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      to={link.href}
+                      onClick={() => setOpen(false)}
+                      className="block py-1 hover:text-rose transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+                <li className="pt-2 border-t border-nude/30">
                   <Link
-                    to={link.href}
+                    to="/wishlist"
                     onClick={() => setOpen(false)}
-                    className="hover:text-rose transition-colors"
+                    className="block py-1 hover:text-rose transition-colors"
                   >
-                    {link.label}
+                    Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
                   </Link>
                 </li>
-              ))}
-              <li>
-                <Link
-                  to="/wishlist"
-                  onClick={() => setOpen(false)}
-                  className="hover:text-rose transition-colors"
-                >
-                  Wishlist {wishlistCount > 0 && `(${wishlistCount})`}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/cart"
-                  onClick={() => setOpen(false)}
-                  className="hover:text-rose transition-colors"
-                >
-                  Bag {cartCount > 0 && `(${cartCount})`}
-                </Link>
-              </li>
-              {isAuthenticated ? (
-                <>
-                  <li>
-                    <Link
-                      to="/account"
-                      onClick={() => setOpen(false)}
-                      className="hover:text-rose transition-colors"
-                    >
-                      My Account
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/account/orders"
-                      onClick={() => setOpen(false)}
-                      className="hover:text-rose transition-colors"
-                    >
-                      My Orders
-                    </Link>
-                  </li>
-                  {isAuthenticated && user?.role === "ADMIN" && (
-                    <li>
-                      <Link
-                        to="/admin"
-                        onClick={() => setOpen(false)}
-                        className="hover:text-rose transition-colors"
-                      >
-                        Admin Dashboard
-                      </Link>
-                    </li>
-                  )}
-                  <li>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpen(false);
-                        handleLogout();
-                      }}
-                      className="hover:text-rose transition-colors"
-                    >
-                      Logout
-                    </button>
-                  </li>
-                </>
-              ) : (
                 <li>
                   <Link
-                    to="/login"
+                    to="/cart"
                     onClick={() => setOpen(false)}
-                    className="hover:text-rose transition-colors"
+                    className="block py-1 hover:text-rose transition-colors"
                   >
-                    Login
+                    Bag {cartCount > 0 && `(${cartCount})`}
                   </Link>
                 </li>
-              )}
-            </ul>
+                {isAuthenticated ? (
+                  <>
+                    <li className="pt-2 border-t border-nude/30">
+                      <Link
+                        to="/account"
+                        onClick={() => setOpen(false)}
+                        className="block py-1 hover:text-rose transition-colors"
+                      >
+                        My Account
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/account/orders"
+                        onClick={() => setOpen(false)}
+                        className="block py-1 hover:text-rose transition-colors"
+                      >
+                        My Orders
+                      </Link>
+                    </li>
+                    {user?.role === "ADMIN" && (
+                      <li>
+                        <Link
+                          to="/admin"
+                          onClick={() => setOpen(false)}
+                          className="block py-1 hover:text-rose transition-colors"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      </li>
+                    )}
+                    <li>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="block w-full text-left py-1 uppercase tracking-luxe hover:text-rose transition-colors"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </>
+                ) : (
+                  <li className="pt-2 border-t border-nude/30">
+                    <Link
+                      to="/login"
+                      onClick={() => setOpen(false)}
+                      className="block py-1 hover:text-rose transition-colors"
+                    >
+                      Login
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {/* Bottom Menu Action Button */}
+            <div className="pt-6 border-t border-nude/40 mt-auto">
+              <Link
+                to="/shop"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-3.5 bg-charcoal text-ivory text-xs uppercase tracking-widest font-medium hover:bg-rose transition-colors text-center"
+              >
+                <span>Explore Shop</span>
+                <ArrowRight size={15} />
+              </Link>
+            </div>
           </div>
         </div>
       )}
