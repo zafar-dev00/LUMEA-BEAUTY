@@ -4,8 +4,38 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function ReviewsSection({ product, onReviewAdded }) {
   const auth = useAuth() || {};
-  const user = auth.user || null;
-  const token = auth.token || localStorage.getItem('token') || '';
+
+  // Resolve token from context or any typical localStorage schema
+  const getAuthToken = () => {
+    if (auth.token) return auth.token;
+    if (auth.user?.token) return auth.user.token;
+
+    try {
+      const storedAuth = JSON.parse(localStorage.getItem('auth') || '{}');
+      if (storedAuth.token) return storedAuth.token;
+
+      const storedUser = JSON.parse(localStorage.getItem('user') || localStorage.getItem('userInfo') || '{}');
+      if (storedUser.token) return storedUser.token;
+      if (storedUser.accessToken) return storedUser.accessToken;
+
+      return (
+        localStorage.getItem('token') ||
+        localStorage.getItem('accessToken') ||
+        localStorage.getItem('jwt') ||
+        ''
+      );
+    } catch {
+      return (
+        localStorage.getItem('token') ||
+        localStorage.getItem('accessToken') ||
+        localStorage.getItem('jwt') ||
+        ''
+      );
+    }
+  };
+
+  const token = getAuthToken();
+  const isLoggedIn = Boolean(auth.user || token);
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -13,41 +43,44 @@ export default function ReviewsSection({ product, onReviewAdded }) {
   const [feedback, setFeedback] = useState({ type: '', text: '' });
 
   const reviewsList = product?.reviews || [];
-  const isLoggedIn = Boolean(user || token);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setFeedback({ type: '', text: '' });
 
-    // 1. Resolve product ID safely
+    const activeToken = getAuthToken();
+
+    if (!activeToken) {
+      setLoading(false);
+      setFeedback({
+        type: 'error',
+        text: 'Session not found. Please log in again to post a review.',
+      });
+      return;
+    }
+
     const targetProductId = product?._id || product?.id;
     if (!targetProductId) {
       setLoading(false);
       setFeedback({
         type: 'error',
-        text: 'Product ID not detected. Please refresh the page and try again.',
+        text: 'Product ID missing. Please refresh the page.',
       });
       return;
     }
 
     try {
-      // 2. Normalize API base URL to prevent double '/api' issues
       const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
       const baseApi = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
 
-      const headers = {
-        'Content-Type': 'application/json',
-      };
-
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const res = await fetch(`${baseApi}/products/${targetProductId}/reviews`, {
         method: 'POST',
-        headers,
-        credentials: 'include', // Allows cross-origin cookies between Vercel and Render
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${activeToken}`,
+        },
+        credentials: 'include',
         body: JSON.stringify({
           rating: Number(rating),
           comment: comment.trim(),
@@ -75,7 +108,6 @@ export default function ReviewsSection({ product, onReviewAdded }) {
 
   return (
     <section className="mt-16 border-t border-charcoal/10 pt-12">
-      {/* Header & Overall Score */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between mb-8">
         <h2 className="text-2xl text-charcoal font-serif">Customer Reviews</h2>
         <div className="flex items-center gap-3">
@@ -129,7 +161,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
           )}
         </div>
 
-        {/* Right: Submission Form Box */}
+        {/* Right: Write Review Form */}
         <div className="lg:col-span-5">
           <div className="bg-cream p-6 rounded-lg sticky top-24">
             <h3 className="text-lg font-serif text-charcoal mb-1">Write a Review</h3>
