@@ -1,4 +1,5 @@
 const Product = require('../models/Product');
+const Order = require('../models/Order');
 const ApiError = require('../utils/ApiError');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -83,13 +84,79 @@ const getProductById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, product });
 });
 
-// POST /api/admin/products — admin-only, see routes/adminRoutes.js
+// POST /api/products/:id/reviews
+const createProductReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+  const productId = req.params.id;
+  const userId = req.user._id;
+
+  if (!rating || !comment) {
+    throw new ApiError(400, 'Please provide both rating and comment');
+  }
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new ApiError(404, 'Product not found');
+  }
+
+  // Check if already reviewed
+  const alreadyReviewed = product.reviews.find(
+    (r) => r.user.toString() === userId.toString()
+  );
+
+  if (alreadyReviewed) {
+    throw new ApiError(400, 'You have already reviewed this product');
+  }
+
+  // Verified Buyer check against orders
+  const hasPurchased = await Order.findOne({
+    user: userId,
+    $or: [
+      { 'items.product': productId },
+      { 'items._id': productId },
+    ],
+  });
+
+  if (!hasPurchased) {
+    throw new ApiError(403, 'Only verified buyers who purchased this product can leave a review');
+  }
+
+  const review = {
+    name: req.user.name || req.user.fullName || 'Verified Buyer',
+    rating: Number(rating),
+    comment: comment.trim(),
+    user: userId,
+    isVerifiedPurchase: true,
+  };
+
+  product.reviews.push(review);
+  product.reviewCount = product.reviews.length;
+
+  product.rating = Number(
+    (
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length
+    ).toFixed(1)
+  );
+
+  await product.save();
+
+  res.status(201).json({
+    success: true,
+    message: 'Review added successfully',
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    review,
+  });
+});
+
+// POST /api/admin/products
 const createProduct = asyncHandler(async (req, res) => {
   const product = await Product.create(req.body);
   res.status(201).json({ success: true, product });
 });
 
-// PUT /api/admin/products/:id — admin-only, see routes/adminRoutes.js
+// PUT /api/admin/products/:id
 const updateProduct = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -103,7 +170,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, product });
 });
 
-// DELETE /api/admin/products/:id — admin-only, see routes/adminRoutes.js
+// DELETE /api/admin/products/:id
 const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id);
 
@@ -117,6 +184,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 module.exports = {
   getProducts,
   getProductById,
+  createProductReview,
   createProduct,
   updateProduct,
   deleteProduct,

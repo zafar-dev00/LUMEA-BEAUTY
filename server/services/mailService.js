@@ -8,7 +8,7 @@ const BREVO_KEY =
 // Must match your registered Brevo account email
 const SENDER = {
   name: 'LUMÉA BEAUTY',
-  email: process.env.BREVO_SENDER_EMAIL || 'thezafar0908@gmail.com',
+  email: process.env.BREVO_SENDER_EMAIL || 'lumea0beauty@gmail.com',
 };
 
 const escapeHtml = (value) =>

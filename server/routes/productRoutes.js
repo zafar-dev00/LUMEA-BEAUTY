@@ -1,12 +1,15 @@
 const express = require('express');
-const { getProducts, getProductById } = require('../controllers/productController');
+const {
+  getProducts,
+  getProductById,
+  createProductReview,
+} = require('../controllers/productController');
+const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Public, read-only. Creating/editing/deleting products is an admin-only
-// action — see routes/adminRoutes.js, protected by `adminOnly`.
 router.route('/').get(getProducts);
-
 router.route('/:id').get(getProductById);
+router.route('/:id/reviews').post(protect, createProductReview);
 
 module.exports = router;
