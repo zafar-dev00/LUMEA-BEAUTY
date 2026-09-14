@@ -4,22 +4,30 @@ const ApiError = require('../utils/ApiError');
 const asyncHandler = require('../utils/asyncHandler');
 
 /**
- * Requires a valid "Authorization: Bearer <token>" header.
+ * Requires a valid JWT either via:
+ * 1. "Authorization: Bearer <token>" header, OR
+ * 2. HTTP-only cookies (req.cookies.token or req.cookies.jwt)
  * Attaches the authenticated user (without password) to req.user.
  */
 const protect = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization || '';
+  let token = null;
 
-  if (!authHeader.startsWith('Bearer ')) {
-    throw new ApiError(401, 'Authentication required');
+  // 1. Check Authorization header
+  const authHeader = req.headers.authorization || '';
+  if (authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
   }
 
-  const token = authHeader.split(' ')[1];
+  // 2. Fallback to HTTP-only cookie if header is absent
+  if (!token && req.cookies) {
+    token = req.cookies.token || req.cookies.jwt || null;
+  }
 
   if (!token) {
     throw new ApiError(401, 'Authentication required');
   }
 
+  // 3. Verify Token
   let decoded;
   try {
     decoded = verifyToken(token);
@@ -30,6 +38,7 @@ const protect = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Invalid authentication token');
   }
 
+  // 4. Retrieve User
   const user = await User.findById(decoded.id);
 
   if (!user) {
