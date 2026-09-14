@@ -5,37 +5,19 @@ import { useAuth } from '../../context/AuthContext';
 export default function ReviewsSection({ product, onReviewAdded }) {
   const auth = useAuth() || {};
 
-  // Resolve token from context or any typical localStorage schema
+  // Specifically targets 'lumea_token' from localStorage as verified in DevTools
   const getAuthToken = () => {
-    if (auth.token) return auth.token;
-    if (auth.user?.token) return auth.user.token;
-
-    try {
-      const storedAuth = JSON.parse(localStorage.getItem('auth') || '{}');
-      if (storedAuth.token) return storedAuth.token;
-
-      const storedUser = JSON.parse(localStorage.getItem('user') || localStorage.getItem('userInfo') || '{}');
-      if (storedUser.token) return storedUser.token;
-      if (storedUser.accessToken) return storedUser.accessToken;
-
-      return (
-        localStorage.getItem('token') ||
-        localStorage.getItem('accessToken') ||
-        localStorage.getItem('jwt') ||
-        ''
-      );
-    } catch {
-      return (
-        localStorage.getItem('token') ||
-        localStorage.getItem('accessToken') ||
-        localStorage.getItem('jwt') ||
-        ''
-      );
-    }
+    return (
+      localStorage.getItem('lumea_token') ||
+      auth.token ||
+      auth.user?.token ||
+      localStorage.getItem('token') ||
+      ''
+    );
   };
 
   const token = getAuthToken();
-  const isLoggedIn = Boolean(auth.user || token);
+  const isLoggedIn = Boolean(token || auth.user);
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -65,7 +47,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
       setLoading(false);
       setFeedback({
         type: 'error',
-        text: 'Product ID missing. Please refresh the page.',
+        text: 'Product ID not found. Please refresh the page.',
       });
       return;
     }
@@ -108,6 +90,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
 
   return (
     <section className="mt-16 border-t border-charcoal/10 pt-12">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between mb-8">
         <h2 className="text-2xl text-charcoal font-serif">Customer Reviews</h2>
         <div className="flex items-center gap-3">
