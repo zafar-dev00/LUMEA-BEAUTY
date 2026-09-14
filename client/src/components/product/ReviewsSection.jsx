@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 export default function ReviewsSection({ product, onReviewAdded }) {
   const auth = useAuth() || {};
   const user = auth.user || null;
-  const token = auth.token || null;
+  const token = auth.token || localStorage.getItem('token') || '';
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -20,8 +20,22 @@ export default function ReviewsSection({ product, onReviewAdded }) {
     setLoading(true);
     setFeedback({ type: '', text: '' });
 
+    // 1. Resolve product ID safely
+    const targetProductId = product?._id || product?.id;
+    if (!targetProductId) {
+      setLoading(false);
+      setFeedback({
+        type: 'error',
+        text: 'Product ID not detected. Please refresh the page and try again.',
+      });
+      return;
+    }
+
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
+      // 2. Normalize API base URL to prevent double '/api' issues
+      const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/$/, '');
+      const baseApi = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`;
+
       const headers = {
         'Content-Type': 'application/json',
       };
@@ -30,10 +44,10 @@ export default function ReviewsSection({ product, onReviewAdded }) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const res = await fetch(`${apiUrl}/api/products/${product._id}/reviews`, {
+      const res = await fetch(`${baseApi}/products/${targetProductId}/reviews`, {
         method: 'POST',
         headers,
-        credentials: 'include',
+        credentials: 'include', // Allows cross-origin cookies between Vercel and Render
         body: JSON.stringify({
           rating: Number(rating),
           comment: comment.trim(),
@@ -61,6 +75,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
 
   return (
     <section className="mt-16 border-t border-charcoal/10 pt-12">
+      {/* Header & Overall Score */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between mb-8">
         <h2 className="text-2xl text-charcoal font-serif">Customer Reviews</h2>
         <div className="flex items-center gap-3">
@@ -73,6 +88,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left: Reviews List */}
         <div className="lg:col-span-7 space-y-4">
           {reviewsList.length > 0 ? (
             <div className="space-y-4">
@@ -113,6 +129,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
           )}
         </div>
 
+        {/* Right: Submission Form Box */}
         <div className="lg:col-span-5">
           <div className="bg-cream p-6 rounded-lg sticky top-24">
             <h3 className="text-lg font-serif text-charcoal mb-1">Write a Review</h3>
