@@ -38,22 +38,19 @@ const {
 
 const router = express.Router();
 
-// Every route below requires a valid JWT AND role === 'ADMIN'. The role is
-// always read from req.user, loaded fresh from MongoDB by `protect` — never
-// trusted from anything the client sends (see middleware/authMiddleware.js).
+// Protected admin-only gate
 router.use(adminOnly);
 
-// Dashboard & analytics
+// Dashboard & Analytics
 router.get('/dashboard', getDashboardStats);
 router.get('/analytics', getAnalytics);
 
-// Products (list/detail reuse the public, read-only controller; only
-// mutations are admin-only, mounted here)
+// Products
 router.post('/products', createProduct);
 router.put('/products/:id', updateProduct);
 router.delete('/products/:id', deleteProduct);
 
-// Categories (same pattern as products)
+// Categories
 router.post('/categories', createCategory);
 router.put('/categories/:id', updateCategory);
 router.delete('/categories/:id', deleteCategory);

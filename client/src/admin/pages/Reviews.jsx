@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Star, Trash2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
@@ -19,23 +19,38 @@ export default function AdminReviews() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  const load = () => {
+  const load = useCallback(() => {
     setLoading(true);
     setError(null);
-    adminReviewService
-      .getReviews(status !== "All" ? status : undefined)
-      .then(setReviews)
-      .catch((err) => setError(err.message || "Couldn't load reviews."))
-      .finally(() => setLoading(false));
-  };
 
-  useEffect(load, [status, retryToken]);
+    const filterStatus = status !== "All" ? status.toLowerCase() : undefined;
+
+    adminReviewService
+      .getReviews(filterStatus)
+      .then((data) => {
+        // Safe check for both raw array or { reviews: [...] } response payload
+        const list = Array.isArray(data) ? data : data?.reviews || [];
+        setReviews(list);
+      })
+      .catch((err) => {
+        setError(err.message || "Couldn't load reviews.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [status]);
+
+  useEffect(() => {
+    load();
+  }, [load, retryToken]);
 
   const updateStatus = async (review, newStatus) => {
     try {
       const updated = await adminReviewService.updateReviewStatus(review._id, newStatus);
-      setReviews((prev) => prev.map((r) => (r._id === updated._id ? updated : r)));
-      showToast(`Review ${newStatus}.`);
+      setReviews((prev) =>
+        prev.map((r) => (r._id === (updated._id || review._id) ? { ...r, ...updated, status: newStatus } : r))
+      );
+      showToast(`Review marked as ${newStatus}.`);
     } catch (err) {
       showToast(err.message || "Couldn't update this review.");
     }
@@ -90,7 +105,7 @@ export default function AdminReviews() {
           <AdminEmptyState
             icon={Star}
             title="No reviews found"
-            description="Customer reviews will appear here once the review submission flow is built."
+            description="No customer reviews match the selected filter."
           />
         ) : (
           <table className="w-full text-sm min-w-[760px]">
@@ -108,17 +123,31 @@ export default function AdminReviews() {
             <tbody>
               {reviews.map((r) => (
                 <tr key={r._id} className="border-b border-charcoal/5 last:border-0 align-top">
-                  <td className="px-5 py-3 text-charcoal">{r.name}</td>
-                  <td className="px-5 py-3 text-charcoal-soft">{r.product?.name || "—"}</td>
-                  <td className="px-5 py-3 text-charcoal-soft">{r.rating} / 5</td>
+                  <td className="px-5 py-3 text-charcoal">
+                    <div className="font-medium">{r.name}</div>
+                    {r.isVerifiedPurchase && (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                        ✓ Verified
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3 text-charcoal-soft">
+                    {r.product?.name || "Product"}
+                  </td>
+                  <td className="px-5 py-3 text-charcoal-soft">
+                    <div className="flex items-center gap-1">
+                      <span className="text-amber-500">★</span>
+                      <span>{r.rating} / 5</span>
+                    </div>
+                  </td>
                   <td className="px-5 py-3 text-charcoal-soft max-w-xs">
                     <p className="line-clamp-2">{r.comment}</p>
                   </td>
                   <td className="px-5 py-3 text-charcoal-soft whitespace-nowrap">
-                    {new Date(r.createdAt).toLocaleDateString()}
+                    {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-5 py-3">
-                    <StatusBadge status={r.status} />
+                    <StatusBadge status={r.status || "approved"} />
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3 text-charcoal-soft">
@@ -126,6 +155,7 @@ export default function AdminReviews() {
                         <button
                           type="button"
                           aria-label="Approve review"
+                          title="Approve"
                           onClick={() => updateStatus(r, "approved")}
                           className="hover:text-rose transition-colors"
                         >
@@ -136,6 +166,7 @@ export default function AdminReviews() {
                         <button
                           type="button"
                           aria-label="Hide review"
+                          title="Hide"
                           onClick={() => updateStatus(r, "hidden")}
                           className="hover:text-rose transition-colors"
                         >
@@ -145,6 +176,7 @@ export default function AdminReviews() {
                         <button
                           type="button"
                           aria-label="Unhide review"
+                          title="Unhide"
                           onClick={() => updateStatus(r, "approved")}
                           className="hover:text-rose transition-colors"
                         >
@@ -154,6 +186,7 @@ export default function AdminReviews() {
                       <button
                         type="button"
                         aria-label="Delete review"
+                        title="Delete"
                         onClick={() => setDeleteTarget(r)}
                         className="hover:text-rose-dark transition-colors"
                       >

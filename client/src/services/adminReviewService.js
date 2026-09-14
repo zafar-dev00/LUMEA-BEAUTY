@@ -3,7 +3,8 @@ import { apiRequest, buildQuery } from "./api";
 export const adminReviewService = {
   async getReviews(status) {
     const data = await apiRequest(`/admin/reviews${buildQuery({ status })}`);
-    return data.reviews;
+    // Returns data.reviews if wrapped, otherwise returns data directly
+    return Array.isArray(data) ? data : data?.reviews || [];
   },
 
   async updateReviewStatus(id, status) {
@@ -11,7 +12,7 @@ export const adminReviewService = {
       method: "PUT",
       body: { status },
     });
-    return data.review;
+    return data?.review || data;
   },
 
   async deleteReview(id) {
