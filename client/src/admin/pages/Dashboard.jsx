@@ -15,7 +15,7 @@ import { adminDashboardService } from "../../services/adminDashboardService";
 import { adminProductService } from "../../services/adminProductService";
 
 function formatCurrency(value) {
-  return `₹${Number(value || 0).toLocaleString("en-IN")}`;
+  return `₹${Math.round(Number(value || 0)).toLocaleString("en-IN")}`;
 }
 
 export default function Dashboard() {
@@ -71,39 +71,40 @@ export default function Dashboard() {
         subtitle="A snapshot of how the store is doing right now."
       />
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      {/* Responsive Grid: 2 cols on mobile/tablet, 3 cols on standard laptops/screens, 6 cols only on ultra-wide screens */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
         <StatCard
           label="Total Revenue"
           icon={IndianRupee}
-          value={loading ? "—" : formatCurrency(stats.totalRevenue)}
+          value={loading ? "—" : formatCurrency(stats?.totalRevenue)}
         />
         <StatCard
           label="Total Orders"
           icon={ShoppingBag}
-          value={loading ? "—" : stats.totalOrders}
+          value={loading ? "—" : (stats?.totalOrders ?? 0)}
         />
         <StatCard
           label="Total Customers"
           icon={Users}
-          value={loading ? "—" : stats.totalCustomers}
+          value={loading ? "—" : (stats?.totalCustomers ?? 0)}
         />
         <StatCard
           label="Total Products"
           icon={Package}
-          value={loading ? "—" : stats.totalProducts}
+          value={loading ? "—" : (stats?.totalProducts ?? 0)}
         />
         <StatCard
           label="Pending Orders"
           icon={Clock}
-          value={loading ? "—" : stats.pendingOrders}
-          tone={!loading && stats.pendingOrders > 0 ? "accent" : "default"}
+          value={loading ? "—" : (stats?.pendingOrders ?? 0)}
+          tone={!loading && stats?.pendingOrders > 0 ? "accent" : "default"}
         />
         <StatCard
           label="Low Stock Products"
           icon={AlertTriangle}
-          value={loading ? "—" : stats.lowStockProducts}
-          tone={!loading && stats.lowStockProducts > 0 ? "warning" : "default"}
-          hint={!loading ? `Threshold: ${stats.lowStockThreshold} units` : undefined}
+          value={loading ? "—" : (stats?.lowStockProducts ?? 0)}
+          tone={!loading && stats?.lowStockProducts > 0 ? "warning" : "default"}
+          hint={!loading ? `Threshold: ${stats?.lowStockThreshold ?? 10} units` : undefined}
         />
       </div>
 
