@@ -87,7 +87,6 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      // Formatted precisely for server/controllers/orderController.js
       const payload = {
         items: items.map((item) => ({
           product: item.id,
@@ -117,7 +116,7 @@ export default function Checkout() {
         payment: {
           id: formData.paymentMethod,
           method: formData.paymentMethod,
-          status: formData.paymentMethod === 'upi' ? 'Pending' : formData.paymentMethod === 'cod' ? 'Pending' : 'Pending',
+          status: 'Pending',
         },
         subtotal: Number(subtotal) || 0,
         discount: Number(discount) || 0,
@@ -130,7 +129,6 @@ export default function Checkout() {
       const result = await createOrder(payload);
       const order = result?.order || result;
       
-      // If UPI payment, show the UPI modal
       if (formData.paymentMethod === 'upi') {
         setPlacedOrder(order);
         setShowUPIModal(true);
@@ -394,7 +392,7 @@ export default function Checkout() {
                       </div>
                     </div>
                     <span className="text-xs font-serif font-medium text-stone-900">
-                      ${(Number(item.price) * Number(item.qty)).toFixed(2)}
+                      ₹{(Number(item.price) * Number(item.qty)).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -449,7 +447,7 @@ export default function Checkout() {
                 <div className="flex justify-between text-base font-serif font-semibold text-stone-900 border-t border-stone-200 pt-3">
                   <span>Total</span>
                   <span>₹{Number(total).toFixed(2)}</span>
-                </div>
+                </div>  
               </div>
 
               <button
