@@ -38,3 +38,37 @@
     @apply max-w-7xl mx-auto px-5 sm:px-8 lg:px-12;
   }
 }
+
+/* ============================================================
+   PRINT & PDF EXPORT STYLES (Invoice Printing)
+   ============================================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  /* Saari website UI (sidebar, header, buttons) hide karo */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Sirf Invoice component ko visible banao */
+  #printable-invoice,
+  #printable-invoice * {
+    visibility: visible !important;
+  }
+
+  #printable-invoice {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
