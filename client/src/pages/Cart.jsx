@@ -130,11 +130,11 @@ export default function Cart() {
             <div className="space-y-2 text-sm text-stone-600">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${Number(subtotal).toFixed(2)}</span>
+                <span>₹{Number(subtotal).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-base font-serif font-semibold text-stone-900 border-t border-stone-200 pt-3">
                 <span>Total</span>
-                <span>${total}</span>
+                <span>₹{Number(total).toFixed(2)}</span>
               </div>
             </div>
 
