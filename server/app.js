@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const { clientUrl } = require('./config/env');
 const apiRoutes = require('./routes');
+const uploadRoutes = require('./routes/uploadRoutes');
 const notFound = require('./middleware/notFound');
 const errorHandler = require('./middleware/errorHandler');
 
@@ -42,9 +43,14 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// API routes
+// API rate limiters
 app.use('/api', apiLimiter);
 app.use('/api/auth', authLimiter);
+
+// File Upload Route (Drag-and-Drop & File Picker)
+app.use('/api/upload', uploadRoutes);
+
+// Main API routes
 app.use('/api', apiRoutes);
 
 // Root

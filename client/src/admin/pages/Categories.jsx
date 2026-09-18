@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, Tags } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
 import ConfirmDialog from "../components/ConfirmDialog";
+import ImageUploadDropzone from "../components/ImageUploadDropzone";
 import { AdminEmptyState, AdminErrorState, AdminTableSkeleton } from "../components/AdminStates";
 import Button from "../../components/ui/Button";
 import { adminCategoryService } from "../../services/adminCategoryService";
@@ -22,7 +23,7 @@ export default function AdminCategories() {
   const [retryToken, setRetryToken] = useState(0);
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState(null); // category being edited, or null for "new"
+  const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -201,7 +202,7 @@ export default function AdminCategories() {
       {modalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-charcoal/50" onClick={() => setModalOpen(false)} />
-          <div className="relative bg-ivory w-full max-w-md p-6 shadow-xl">
+          <div className="relative bg-ivory w-full max-w-md p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-lg text-charcoal font-medium mb-5">
               {editing ? "Edit Category" : "Add Category"}
             </h2>
@@ -220,16 +221,16 @@ export default function AdminCategories() {
                   className={inputClasses}
                 />
               </div>
+
               <div>
-                <label htmlFor="cat-image" className={labelClasses}>Image URL</label>
-                <input
-                  id="cat-image"
+                <ImageUploadDropzone
+                  label="Category Image"
                   value={form.image}
-                  onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                  className={inputClasses}
+                  onChange={(url) => setForm((f) => ({ ...f, image: url }))}
                   placeholder="https://..."
                 />
               </div>
+
               <div>
                 <label htmlFor="cat-description" className={labelClasses}>Description</label>
                 <textarea

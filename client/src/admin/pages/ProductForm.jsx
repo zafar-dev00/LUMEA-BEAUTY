@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, UploadCloud, Loader2 } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import Button from "../../components/ui/Button";
+import ImageUploadDropzone from "../components/ImageUploadDropzone";
 import { adminProductService } from "../../services/adminProductService";
 import { adminCategoryService } from "../../services/adminCategoryService";
 import { useToast } from "../../context/ToastContext";
@@ -37,8 +38,6 @@ const EMPTY_FORM = {
   isNew: false,
 };
 
-// Backend stores several fields as arrays of strings; the form edits them as
-// comma-separated text for simplicity, converting at the load/submit boundary.
 const arrayFields = ["shades", "sizes", "ingredients", "benefits", "skinType", "tags"];
 
 function docToForm(doc) {
@@ -105,6 +104,9 @@ export default function ProductForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
 
+  const [galleryUploading, setGalleryUploading] = useState(false);
+  const galleryInputRef = useRef(null);
+
   useEffect(() => {
     adminCategoryService.getCategories().then(setCategories).catch(() => {});
   }, []);
@@ -131,6 +133,48 @@ export default function ProductForm() {
 
   const handleChange = (field, value) => {
     setForm((f) => ({ ...f, [field]: value }));
+  };
+
+  const uploadMultipleGalleryFiles = async (files) => {
+    if (!files || files.length === 0) return;
+    setGalleryUploading(true);
+
+    const rawApiUrl = (import.meta.env.VITE_API_URL || "").trim().replace(/\/$/, "");
+    const base = rawApiUrl.endsWith("/api") ? rawApiUrl : `${rawApiUrl}/api`;
+    const token =
+      localStorage.getItem("lumea_token") ||
+      localStorage.getItem("token") ||
+      "";
+
+    const uploadedUrls = [];
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) continue;
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const res = await fetch(`${base}/upload`, {
+          method: "POST",
+          headers: { Authorization: token ? `Bearer ${token}` : "" },
+          body: formData,
+        });
+        const data = await res.json();
+        if (res.ok && (data.url || data.secure_url)) {
+          uploadedUrls.push(data.url || data.secure_url);
+        }
+      } catch (e) {
+        // continue to next file
+      }
+    }
+
+    if (uploadedUrls.length > 0) {
+      setForm((f) => ({
+        ...f,
+        images: f.images ? `${f.images}\n${uploadedUrls.join("\n")}` : uploadedUrls.join("\n"),
+      }));
+      showToast(`${uploadedUrls.length} image(s) uploaded to gallery.`);
+    }
+    setGalleryUploading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -204,7 +248,8 @@ export default function ProductForm() {
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label htmlFor="pf-name" className={labelClasses}>Product Name</label>
-              <input id="pf-name"
+              <input
+                id="pf-name"
                 value={form.name}
                 onChange={(e) => handleChange("name", e.target.value)}
                 className={inputClasses}
@@ -213,7 +258,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-brand" className={labelClasses}>Brand</label>
-              <input id="pf-brand"
+              <input
+                id="pf-brand"
                 value={form.brand}
                 onChange={(e) => handleChange("brand", e.target.value)}
                 className={inputClasses}
@@ -222,7 +268,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-category" className={labelClasses}>Category</label>
-              <input id="pf-category"
+              <input
+                id="pf-category"
                 value={form.category}
                 onChange={(e) => handleChange("category", e.target.value)}
                 list="category-options"
@@ -237,7 +284,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-subcategory" className={labelClasses}>Subcategory</label>
-              <input id="pf-subcategory"
+              <input
+                id="pf-subcategory"
                 value={form.subcategory}
                 onChange={(e) => handleChange("subcategory", e.target.value)}
                 className={inputClasses}
@@ -247,7 +295,8 @@ export default function ProductForm() {
 
           <div>
             <label htmlFor="pf-description" className={labelClasses}>Description</label>
-            <textarea id="pf-description"
+            <textarea
+              id="pf-description"
               value={form.description}
               onChange={(e) => handleChange("description", e.target.value)}
               rows={4}
@@ -258,7 +307,8 @@ export default function ProductForm() {
 
           <div>
             <label htmlFor="pf-shortDescription" className={labelClasses}>Short Description</label>
-            <input id="pf-shortDescription"
+            <input
+              id="pf-shortDescription"
               value={form.shortDescription}
               onChange={(e) => handleChange("shortDescription", e.target.value)}
               maxLength={200}
@@ -273,7 +323,8 @@ export default function ProductForm() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
               <label htmlFor="pf-price" className={labelClasses}>Price (₹)</label>
-              <input id="pf-price"
+              <input
+                id="pf-price"
                 type="number"
                 min="0"
                 step="0.01"
@@ -285,7 +336,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-originalPrice" className={labelClasses}>Original Price (₹)</label>
-              <input id="pf-originalPrice"
+              <input
+                id="pf-originalPrice"
                 type="number"
                 min="0"
                 step="0.01"
@@ -296,7 +348,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-discountPercentage" className={labelClasses}>Discount %</label>
-              <input id="pf-discountPercentage"
+              <input
+                id="pf-discountPercentage"
                 type="number"
                 min="0"
                 max="100"
@@ -307,7 +360,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-stock" className={labelClasses}>Stock</label>
-              <input id="pf-stock"
+              <input
+                id="pf-stock"
                 type="number"
                 min="0"
                 value={form.stock}
@@ -318,7 +372,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-sku" className={labelClasses}>SKU</label>
-              <input id="pf-sku"
+              <input
+                id="pf-sku"
                 value={form.sku}
                 onChange={(e) => handleChange("sku", e.target.value)}
                 className={inputClasses}
@@ -328,38 +383,75 @@ export default function ProductForm() {
           </div>
         </section>
 
-        {/* Images */}
-        <section className="bg-ivory border border-charcoal/10 p-5 sm:p-6 space-y-5">
+        {/* Dual Input Image Dropzone & Gallery */}
+        <section className="bg-ivory border border-charcoal/10 p-5 sm:p-6 space-y-6">
           <h2 className="text-sm uppercase tracking-luxe text-charcoal">Images</h2>
+
           <div>
-            <label htmlFor="pf-thumbnail" className={labelClasses}>Thumbnail URL</label>
-            <input id="pf-thumbnail"
+            <ImageUploadDropzone
+              label="Thumbnail Image"
               value={form.thumbnail}
-              onChange={(e) => handleChange("thumbnail", e.target.value)}
-              className={inputClasses}
-              placeholder="https://..."
+              onChange={(url) => handleChange("thumbnail", url)}
+              placeholder="https://images.unsplash.com/..."
             />
-            {errors.thumbnail && <p className="mt-1 text-xs text-rose-dark">{errors.thumbnail}</p>}
+            {errors.thumbnail && <p className="mt-1.5 text-xs text-rose-dark">{errors.thumbnail}</p>}
           </div>
-          <div>
-            <label htmlFor="pf-images" className={labelClasses}>Gallery Images (one URL per line)</label>
-            <textarea id="pf-images"
+
+          <div className="pt-2 border-t border-charcoal/10">
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="pf-images" className="block text-xs uppercase tracking-luxe text-charcoal">
+                Gallery Images (URLs or Drag/Drop Files)
+              </label>
+              <button
+                type="button"
+                onClick={() => galleryInputRef.current?.click()}
+                disabled={galleryUploading}
+                className="text-xs uppercase tracking-wider text-rose hover:text-rose-dark inline-flex items-center gap-1"
+              >
+                {galleryUploading ? (
+                  <>
+                    <Loader2 size={13} className="animate-spin" /> Uploading...
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud size={13} /> + Upload Files
+                  </>
+                )}
+              </button>
+              <input
+                ref={galleryInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) uploadMultipleGalleryFiles(Array.from(e.target.files));
+                }}
+              />
+            </div>
+
+            <textarea
+              id="pf-images"
               value={form.images}
               onChange={(e) => handleChange("images", e.target.value)}
               rows={3}
-              className={inputClasses}
+              className={`${inputClasses} font-mono`}
               placeholder="https://...&#10;https://..."
             />
+            <p className="mt-1 text-[11px] text-charcoal-soft">
+              One URL per line. You can paste direct links or click "+ Upload Files" to upload files directly.
+            </p>
           </div>
         </section>
 
-        {/* Product metadata */}
+        {/* Product details */}
         <section className="bg-ivory border border-charcoal/10 p-5 sm:p-6 space-y-5">
           <h2 className="text-sm uppercase tracking-luxe text-charcoal">Product Details</h2>
           <div className="grid sm:grid-cols-2 gap-5">
             <div>
               <label htmlFor="pf-shades" className={labelClasses}>Shades (comma-separated)</label>
-              <input id="pf-shades"
+              <input
+                id="pf-shades"
                 value={form.shades}
                 onChange={(e) => handleChange("shades", e.target.value)}
                 className={inputClasses}
@@ -368,7 +460,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-sizes" className={labelClasses}>Sizes (comma-separated)</label>
-              <input id="pf-sizes"
+              <input
+                id="pf-sizes"
                 value={form.sizes}
                 onChange={(e) => handleChange("sizes", e.target.value)}
                 className={inputClasses}
@@ -377,7 +470,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-skinType" className={labelClasses}>Skin Type (comma-separated)</label>
-              <input id="pf-skinType"
+              <input
+                id="pf-skinType"
                 value={form.skinType}
                 onChange={(e) => handleChange("skinType", e.target.value)}
                 className={inputClasses}
@@ -386,7 +480,8 @@ export default function ProductForm() {
             </div>
             <div>
               <label htmlFor="pf-tags" className={labelClasses}>Tags (comma-separated)</label>
-              <input id="pf-tags"
+              <input
+                id="pf-tags"
                 value={form.tags}
                 onChange={(e) => handleChange("tags", e.target.value)}
                 className={inputClasses}
@@ -396,7 +491,8 @@ export default function ProductForm() {
           </div>
           <div>
             <label htmlFor="pf-ingredients" className={labelClasses}>Ingredients (comma-separated)</label>
-            <textarea id="pf-ingredients"
+            <textarea
+              id="pf-ingredients"
               value={form.ingredients}
               onChange={(e) => handleChange("ingredients", e.target.value)}
               rows={2}
@@ -405,7 +501,8 @@ export default function ProductForm() {
           </div>
           <div>
             <label htmlFor="pf-benefits" className={labelClasses}>Benefits (comma-separated)</label>
-            <textarea id="pf-benefits"
+            <textarea
+              id="pf-benefits"
               value={form.benefits}
               onChange={(e) => handleChange("benefits", e.target.value)}
               rows={2}
@@ -414,7 +511,8 @@ export default function ProductForm() {
           </div>
           <div>
             <label htmlFor="pf-howToUse" className={labelClasses}>How to Use</label>
-            <textarea id="pf-howToUse"
+            <textarea
+              id="pf-howToUse"
               value={form.howToUse}
               onChange={(e) => handleChange("howToUse", e.target.value)}
               rows={3}
