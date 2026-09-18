@@ -63,6 +63,7 @@ export default function ProductCard({ product, onQuickView }) {
             <button
               type="button"
               aria-label="Quick view"
+              aria-select="false"
               onClick={(e) => {
                 e.preventDefault();
                 onQuickView(product);
@@ -94,11 +95,11 @@ export default function ProductCard({ product, onQuickView }) {
         <StarRating rating={rating} />
         <div className="flex items-center gap-2 pt-1">
           <span className="text-sm font-medium text-charcoal">
-            ${price}
+            ₹{price}
           </span>
           {oldPrice && (
             <span className="text-sm text-nude-dark line-through">
-              ${oldPrice}
+              ₹{oldPrice}
             </span>
           )}
         </div>
