@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import { useAuth } from "../../context/AuthContext";
 import { adminDashboardService } from "../../services/adminDashboardService";
@@ -25,7 +25,7 @@ export default function AdminSettings() {
             Products at or below this stock count are flagged "Low Stock" across the dashboard.
           </p>
           <p className="mt-3 text-2xl text-charcoal">
-            {threshold ?? "—"} <span className="text-sm text-charcoal-soft">units</span>
+            {threshold ?? "â€”"} <span className="text-sm text-charcoal-soft">units</span>
           </p>
           <p className="mt-2 text-xs text-charcoal-soft">
             Set via the <code className="bg-cream px-1">LOW_STOCK_THRESHOLD</code> environment
@@ -54,3 +54,4 @@ export default function AdminSettings() {
     </div>
   );
 }
+

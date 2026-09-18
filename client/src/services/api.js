@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+﻿const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const TOKEN_KEY = "lumea_token";
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY);
@@ -84,3 +84,4 @@ export function buildQuery(params = {}) {
   const qs = search.toString();
   return qs ? `?${qs}` : "";
 }
+

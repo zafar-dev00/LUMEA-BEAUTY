@@ -1,10 +1,10 @@
-// All product and category mock data has been replaced by live API calls —
+﻿// All product and category mock data has been replaced by live API calls â€”
 // see src/services/productService.js and src/services/categoryService.js,
 // used by Shop, ProductDetails, and Home.
 //
 // These testimonial-style reviews are the one thing still hardcoded here:
 // the backend has no reviews endpoint yet (Product only stores aggregate
-// rating/reviewCount, not individual reviews — see services/reviewService.js
+// rating/reviewCount, not individual reviews â€” see services/reviewService.js
 // for details), so CustomerReviews (Home) and ReviewsSection (Product
 // Details) keep reading from this small local dataset until that backend
 // work exists.
@@ -22,7 +22,7 @@ export const reviews = [
     name: "Sophia L.",
     rating: 5,
     text:
-      "LUMÉA's lipstick shades are unmatched — the Velvet Rose feels weightless and lasts through dinner without drying my lips.",
+      "LUMÃ‰A's lipstick shades are unmatched â€” the Velvet Rose feels weightless and lasts through dinner without drying my lips.",
     product: "Velvet Rose Matte Lipstick",
   },
   {
@@ -34,3 +34,4 @@ export const reviews = [
     product: "Blush Petal Eau de Parfum",
   },
 ];
+

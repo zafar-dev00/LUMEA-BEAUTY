@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import StarRating from '../ui/StarRating';
 import { useAuth } from '../../context/AuthContext';
 
@@ -97,7 +97,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
           <StarRating rating={product?.rating || 0} size={16} />
           <span className="text-sm text-charcoal-soft">
             {(product?.rating || 0).toFixed(1)} out of 5
-            {product?.reviewCount ? ` · ${product.reviewCount} reviews` : ''}
+            {product?.reviewCount ? ` Â· ${product.reviewCount} reviews` : ''}
           </span>
         </div>
       </div>
@@ -113,7 +113,7 @@ export default function ReviewsSection({ product, onReviewAdded }) {
                     <StarRating rating={review.rating} size={13} />
                     {review.isVerifiedPurchase && (
                       <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        ✓ Verified Purchase
+                        âœ“ Verified Purchase
                       </span>
                     )}
                   </div>
@@ -175,11 +175,11 @@ export default function ReviewsSection({ product, onReviewAdded }) {
                     onChange={(e) => setRating(e.target.value)}
                     className="w-full text-sm p-2 rounded border border-charcoal/20 bg-white focus:outline-none focus:border-charcoal"
                   >
-                    <option value="5">★★★★★ (5 - Excellent)</option>
-                    <option value="4">★★★★☆ (4 - Good)</option>
-                    <option value="3">★★★☆☆ (3 - Average)</option>
-                    <option value="2">★★☆☆☆ (2 - Below Expectation)</option>
-                    <option value="1">★☆☆☆☆ (1 - Poor)</option>
+                    <option value="5">â˜…â˜…â˜…â˜…â˜… (5 - Excellent)</option>
+                    <option value="4">â˜…â˜…â˜…â˜…â˜† (4 - Good)</option>
+                    <option value="3">â˜…â˜…â˜…â˜†â˜† (3 - Average)</option>
+                    <option value="2">â˜…â˜…â˜†â˜†â˜† (2 - Below Expectation)</option>
+                    <option value="1">â˜…â˜†â˜†â˜†â˜† (1 - Poor)</option>
                   </select>
                 </div>
 

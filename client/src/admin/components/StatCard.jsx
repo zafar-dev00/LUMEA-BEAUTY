@@ -1,4 +1,4 @@
-export default function StatCard({ label, value, icon: Icon, tone = "default", hint }) {
+﻿export default function StatCard({ label, value, icon: Icon, tone = "default", hint }) {
   const toneClasses =
     tone === "warning"
       ? "text-rose-dark"
@@ -17,3 +17,4 @@ export default function StatCard({ label, value, icon: Icon, tone = "default", h
     </div>
   );
 }
+

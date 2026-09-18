@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+﻿import React, { forwardRef } from "react";
 
 const OrderInvoice = forwardRef(({ order }, ref) => {
   if (!order) return null;
@@ -20,7 +20,7 @@ const OrderInvoice = forwardRef(({ order }, ref) => {
     >
       {/* Header */}
       <div className="text-center pb-3 border-b border-gray-400">
-        <h1 className="text-xl font-bold tracking-wider uppercase text-charcoal">LUMÉA BEAUTY</h1>
+        <h1 className="text-xl font-bold tracking-wider uppercase text-charcoal">LUMÃ‰A BEAUTY</h1>
         <p className="text-[11px] text-gray-600">
           Plot No. 120, Premium Retail Hub, Mumbai, Maharashtra - 400088
         </p>
@@ -51,7 +51,7 @@ const OrderInvoice = forwardRef(({ order }, ref) => {
       <div className="grid grid-cols-3 border border-gray-400 p-3 gap-3 mb-4 text-[11px]">
         <div>
           <h3 className="font-bold uppercase text-[10px] text-gray-600 mb-1">Sold By / Sender</h3>
-          <p className="font-semibold">LUMÉA BEAUTY RETAIL</p>
+          <p className="font-semibold">LUMÃ‰A BEAUTY RETAIL</p>
           <p>Mumbai Central Hub, Maharashtra</p>
           <p>GSTIN: 27AABCL1234F1Z5</p>
         </div>
@@ -80,8 +80,8 @@ const OrderInvoice = forwardRef(({ order }, ref) => {
             <th className="border border-gray-400 p-1.5 w-10 text-center">S.No.</th>
             <th className="border border-gray-400 p-1.5">Product Description</th>
             <th className="border border-gray-400 p-1.5 text-center w-14">Qty</th>
-            <th className="border border-gray-400 p-1.5 text-right w-24">Unit Price (₹)</th>
-            <th className="border border-gray-400 p-1.5 text-right w-24">Total (₹)</th>
+            <th className="border border-gray-400 p-1.5 text-right w-24">Unit Price (â‚¹)</th>
+            <th className="border border-gray-400 p-1.5 text-right w-24">Total (â‚¹)</th>
           </tr>
         </thead>
         <tbody>
@@ -92,8 +92,8 @@ const OrderInvoice = forwardRef(({ order }, ref) => {
                 {item.product?.name || item.name}
               </td>
               <td className="border border-gray-400 p-1.5 text-center">{item.quantity}</td>
-              <td className="border border-gray-400 p-1.5 text-right">₹{item.price?.toFixed(2)}</td>
-              <td className="border border-gray-400 p-1.5 text-right">₹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</td>
+              <td className="border border-gray-400 p-1.5 text-right">â‚¹{item.price?.toFixed(2)}</td>
+              <td className="border border-gray-400 p-1.5 text-right">â‚¹{((item.price || 0) * (item.quantity || 1)).toFixed(2)}</td>
             </tr>
           ))}
         </tbody>
@@ -111,21 +111,21 @@ const OrderInvoice = forwardRef(({ order }, ref) => {
           <tbody>
             <tr>
               <td className="border border-gray-400 p-1.5">Subtotal</td>
-              <td className="border border-gray-400 p-1.5 text-right font-medium">₹{order.subtotal?.toFixed(2) || "699.00"}</td>
+              <td className="border border-gray-400 p-1.5 text-right font-medium">â‚¹{order.subtotal?.toFixed(2) || "699.00"}</td>
             </tr>
             {order.discount > 0 && (
               <tr>
                 <td className="border border-gray-400 p-1.5 text-green-700">Discount ({order.couponCode || "COUPON"})</td>
-                <td className="border border-gray-400 p-1.5 text-right text-green-700 font-medium">-₹{order.discount?.toFixed(2) || "692.01"}</td>
+                <td className="border border-gray-400 p-1.5 text-right text-green-700 font-medium">-â‚¹{order.discount?.toFixed(2) || "692.01"}</td>
               </tr>
             )}
             <tr>
               <td className="border border-gray-400 p-1.5">Shipping Charges</td>
-              <td className="border border-gray-400 p-1.5 text-right">₹{order.shippingCost ? order.shippingCost.toFixed(2) : "0.00"}</td>
+              <td className="border border-gray-400 p-1.5 text-right">â‚¹{order.shippingCost ? order.shippingCost.toFixed(2) : "0.00"}</td>
             </tr>
             <tr className="bg-gray-100 font-bold text-xs">
               <td className="border border-gray-400 p-2">Grand Total</td>
-              <td className="border border-gray-400 p-2 text-right">₹{order.total?.toFixed(2) || "6.99"}</td>
+              <td className="border border-gray-400 p-2 text-right">â‚¹{order.total?.toFixed(2) || "6.99"}</td>
             </tr>
           </tbody>
         </table>
@@ -133,9 +133,9 @@ const OrderInvoice = forwardRef(({ order }, ref) => {
 
       {/* Footer */}
       <div className="border-t border-gray-400 pt-3 flex justify-between items-end">
-        <p className="text-[10px] text-gray-500 italic">Thank you for shopping with LUMÉA BEAUTY!</p>
+        <p className="text-[10px] text-gray-500 italic">Thank you for shopping with LUMÃ‰A BEAUTY!</p>
         <div className="text-right">
-          <p className="font-bold text-xs">LUMÉA BEAUTY</p>
+          <p className="font-bold text-xs">LUMÃ‰A BEAUTY</p>
           <p className="text-[10px] text-gray-500">Authorized Signatory</p>
         </div>
       </div>

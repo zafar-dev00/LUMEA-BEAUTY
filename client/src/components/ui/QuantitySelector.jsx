@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-react";
+﻿import { Minus, Plus } from "lucide-react";
 
 export default function QuantitySelector({ value, onChange, min = 1 }) {
   return (
@@ -23,3 +23,4 @@ export default function QuantitySelector({ value, onChange, min = 1 }) {
     </div>
   );
 }
+

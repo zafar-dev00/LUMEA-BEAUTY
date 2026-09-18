@@ -1,4 +1,4 @@
-import ProductCard from "../ui/ProductCard";
+﻿import ProductCard from "../ui/ProductCard";
 
 export default function RelatedProducts({ products }) {
   if (!products || products.length === 0) return null;
@@ -24,3 +24,4 @@ export default function RelatedProducts({ products }) {
     </section>
   );
 }
+

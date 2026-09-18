@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { Heart, Trash2 } from "lucide-react";
 import ProductCard from "../components/ui/ProductCard";
 import Button from "../components/ui/Button";
@@ -77,3 +77,4 @@ export default function Wishlist() {
     </div>
   );
 }
+

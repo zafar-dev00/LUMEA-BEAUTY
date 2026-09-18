@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+﻿import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeft, Printer, Download } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
@@ -47,7 +47,7 @@ export default function AdminOrderDetails() {
     try {
       const updated = await adminOrderService.updateOrderStatus(id, status);
       setOrder(updated);
-      showToast(`Order status updated to "${status}".`);
+      showToast(`Order status updated to "₹{status}".`);
     } catch (err) {
       showToast(err.message || "Couldn't update order status.");
     } finally {
@@ -154,8 +154,8 @@ export default function AdminOrderDetails() {
                         <span className="text-charcoal">{item.name}</span>
                       </td>
                       <td className="py-3 text-charcoal-soft">{item.qty}</td>
-                      <td className="py-3 text-charcoal-soft">₹{item.price}</td>
-                      <td className="py-3 text-charcoal">₹{item.price * item.qty}</td>
+                      <td className="py-3 text-charcoal-soft">â‚¹{item.price}</td>
+                      <td className="py-3 text-charcoal">â‚¹{item.price * item.qty}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -164,27 +164,27 @@ export default function AdminOrderDetails() {
               <div className="mt-4 pt-4 border-t border-charcoal/10 space-y-1.5 text-sm max-w-xs ml-auto">
                 <div className="flex justify-between text-charcoal-soft">
                   <span>Subtotal</span>
-                  <span>₹{order.subtotal}</span>
+                  <span>â‚¹{order.subtotal}</span>
                 </div>
                 {order.discount > 0 && (
                   <div className="flex justify-between text-charcoal-soft">
                     <span>Discount {order.couponCode ? `(${order.couponCode})` : ""}</span>
-                    <span>-₹{order.discount}</span>
+                    <span>-â‚¹{order.discount}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-charcoal-soft">
                   <span>Shipping</span>
-                  <span>₹{order.shipping ?? 0}</span>
+                  <span>â‚¹{order.shipping ?? 0}</span>
                 </div>
                 {order.tax > 0 && (
                   <div className="flex justify-between text-charcoal-soft">
                     <span>Tax</span>
-                    <span>₹{order.tax}</span>
+                    <span>â‚¹{order.tax}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-charcoal font-medium pt-1.5 border-t border-charcoal/10">
                   <span>Total</span>
-                  <span>₹{order.total}</span>
+                  <span>â‚¹{order.total}</span>
                 </div>
               </div>
             </section>
@@ -206,9 +206,9 @@ export default function AdminOrderDetails() {
             {/* Customer */}
             <section className="bg-ivory border border-charcoal/10 p-5 sm:p-6">
               <h2 className="text-sm uppercase tracking-luxe text-charcoal mb-4">Customer</h2>
-              <p className="text-sm text-charcoal font-medium">{order.customer?.fullName || "—"}</p>
-              <p className="text-sm text-charcoal-soft">{order.customer?.email || "—"}</p>
-              <p className="text-sm text-charcoal-soft">{order.customer?.phone || "—"}</p>
+              <p className="text-sm text-charcoal font-medium">{order.customer?.fullName || "â€”"}</p>
+              <p className="text-sm text-charcoal-soft">{order.customer?.email || "â€”"}</p>
+              <p className="text-sm text-charcoal-soft">{order.customer?.phone || "â€”"}</p>
             </section>
 
             {/* Payment */}
@@ -232,7 +232,7 @@ export default function AdminOrderDetails() {
         <div className="p-8 max-w-[820px] mx-auto text-xs font-sans border border-gray-400">
           {/* Header */}
           <div className="text-center pb-2 border-b border-gray-400">
-            <h1 className="text-2xl font-bold tracking-widest uppercase text-black">LUMÉA BEAUTY</h1>
+            <h1 className="text-2xl font-bold tracking-widest uppercase text-black">LUMÃ‰A BEAUTY</h1>
             <p className="text-[11px] text-gray-700 mt-1">
               Plot No. 120, Premium Retail Hub, Mumbai, Maharashtra - 400088
             </p>
@@ -264,7 +264,7 @@ export default function AdminOrderDetails() {
           <div className="grid grid-cols-3 border border-gray-400 p-2.5 gap-2 mb-3 text-[11px] leading-tight">
             <div>
               <h3 className="font-bold uppercase text-[10px] text-gray-700 mb-1">Sold By / Sender</h3>
-              <p className="font-semibold">LUMÉA BEAUTY RETAIL</p>
+              <p className="font-semibold">LUMÃ‰A BEAUTY RETAIL</p>
               <p>Plot No. 120, Central Hub</p>
               <p>Mumbai, Maharashtra - 400088</p>
               <p>GSTIN: 27AABCL1234F1Z5</p>
@@ -275,7 +275,7 @@ export default function AdminOrderDetails() {
               <p className="font-semibold">{order.customer?.fullName || "Guest Customer"}</p>
               <p>{order.address?.house ? `${order.address.house}, ` : ""}{order.address?.street || ""}</p>
               <p>{order.address?.city}, {order.address?.state} - {order.address?.pincode}</p>
-              <p>Phone: {order.customer?.phone || "—"}</p>
+              <p>Phone: {order.customer?.phone || "â€”"}</p>
             </div>
 
             <div>
@@ -283,7 +283,7 @@ export default function AdminOrderDetails() {
               <p className="font-semibold">{order.customer?.fullName || "Guest Customer"}</p>
               <p>{order.address?.house ? `${order.address.house}, ` : ""}{order.address?.street || ""}</p>
               <p>{order.address?.city}, {order.address?.state} - {order.address?.pincode}</p>
-              <p>Phone: {order.customer?.phone || "—"}</p>
+              <p>Phone: {order.customer?.phone || "â€”"}</p>
             </div>
           </div>
 
@@ -294,8 +294,8 @@ export default function AdminOrderDetails() {
                 <th className="border border-gray-400 p-1.5 w-10 text-center">S.No.</th>
                 <th className="border border-gray-400 p-1.5">Product Description</th>
                 <th className="border border-gray-400 p-1.5 text-center w-12">Qty</th>
-                <th className="border border-gray-400 p-1.5 text-right w-24">Unit Price (₹)</th>
-                <th className="border border-gray-400 p-1.5 text-right w-24">Total Amount (₹)</th>
+                <th className="border border-gray-400 p-1.5 text-right w-24">Unit Price (â‚¹)</th>
+                <th className="border border-gray-400 p-1.5 text-right w-24">Total Amount (â‚¹)</th>
               </tr>
             </thead>
             <tbody>
@@ -304,8 +304,8 @@ export default function AdminOrderDetails() {
                   <td className="border border-gray-400 p-1.5 text-center">{index + 1}</td>
                   <td className="border border-gray-400 p-1.5 font-medium">{item.name}</td>
                   <td className="border border-gray-400 p-1.5 text-center">{item.qty}</td>
-                  <td className="border border-gray-400 p-1.5 text-right">₹{Number(item.price).toFixed(2)}</td>
-                  <td className="border border-gray-400 p-1.5 text-right">₹{(Number(item.price) * Number(item.qty)).toFixed(2)}</td>
+                  <td className="border border-gray-400 p-1.5 text-right">â‚¹{Number(item.price).toFixed(2)}</td>
+                  <td className="border border-gray-400 p-1.5 text-right">â‚¹{(Number(item.price) * Number(item.qty)).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -321,7 +321,7 @@ export default function AdminOrderDetails() {
                 This is a computer-generated tax invoice, signature is not required.
               </p>
               <p className="text-[10px] text-gray-600">
-                Thank you for shopping with LUMÉA BEAUTY!
+                Thank you for shopping with LUMÃ‰A BEAUTY!
               </p>
             </div>
 
@@ -329,7 +329,7 @@ export default function AdminOrderDetails() {
               <tbody>
                 <tr>
                   <td className="border border-gray-400 p-1.5">Subtotal</td>
-                  <td className="border border-gray-400 p-1.5 text-right font-medium">₹{Number(order.subtotal || 0).toFixed(2)}</td>
+                  <td className="border border-gray-400 p-1.5 text-right font-medium">â‚¹{Number(order.subtotal || 0).toFixed(2)}</td>
                 </tr>
                 {order.discount > 0 && (
                   <tr>
@@ -337,23 +337,23 @@ export default function AdminOrderDetails() {
                       Discount {order.couponCode ? `(${order.couponCode})` : ""}
                     </td>
                     <td className="border border-gray-400 p-1.5 text-right text-green-700 font-medium">
-                      -₹{Number(order.discount).toFixed(2)}
+                      -â‚¹{Number(order.discount).toFixed(2)}
                     </td>
                   </tr>
                 )}
                 <tr>
                   <td className="border border-gray-400 p-1.5">Delivery / Shipping</td>
-                  <td className="border border-gray-400 p-1.5 text-right">₹{Number(order.shipping || 0).toFixed(2)}</td>
+                  <td className="border border-gray-400 p-1.5 text-right">â‚¹{Number(order.shipping || 0).toFixed(2)}</td>
                 </tr>
                 {order.tax > 0 && (
                   <tr>
                     <td className="border border-gray-400 p-1.5">Tax (GST)</td>
-                    <td className="border border-gray-400 p-1.5 text-right">₹{Number(order.tax).toFixed(2)}</td>
+                    <td className="border border-gray-400 p-1.5 text-right">â‚¹{Number(order.tax).toFixed(2)}</td>
                   </tr>
                 )}
                 <tr className="bg-gray-100 font-bold text-xs">
                   <td className="border border-gray-400 p-2">Grand Total</td>
-                  <td className="border border-gray-400 p-2 text-right">₹{Number(order.total || 0).toFixed(2)}</td>
+                  <td className="border border-gray-400 p-2 text-right">â‚¹{Number(order.total || 0).toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
@@ -363,7 +363,7 @@ export default function AdminOrderDetails() {
           <div className="border-t border-gray-400 pt-3 flex justify-between items-end">
             <p className="text-[10px] text-gray-500 italic">For any query contact: support@lumeabeauty.com</p>
             <div className="text-right">
-              <p className="font-bold text-xs">LUMÉA BEAUTY RETAIL</p>
+              <p className="font-bold text-xs">LUMÃ‰A BEAUTY RETAIL</p>
               <p className="text-[10px] text-gray-500">Authorized Signatory</p>
             </div>
           </div>

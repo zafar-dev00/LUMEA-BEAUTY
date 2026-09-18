@@ -1,4 +1,4 @@
-export default function ConfirmDialog({
+﻿export default function ConfirmDialog({
   open,
   title = "Are you sure?",
   message,
@@ -38,3 +38,4 @@ export default function ConfirmDialog({
     </div>
   );
 }
+

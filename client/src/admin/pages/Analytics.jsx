@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import BarChart from "../components/BarChart";
 import { AdminErrorState } from "../components/AdminStates";
@@ -12,7 +12,7 @@ const RANGE_OPTIONS = [
 ];
 
 function formatCurrency(value) {
-  return `₹${Number(value || 0).toLocaleString("en-IN")}`;
+  return `â‚¹${Number(value || 0).toLocaleString("en-IN")}`;
 }
 
 export default function Analytics() {
@@ -115,7 +115,7 @@ export default function Analytics() {
                   <li key={p.name} className="flex items-center justify-between text-sm">
                     <span className="text-charcoal truncate pr-4">{p.name}</span>
                     <span className="text-charcoal-soft shrink-0">
-                      {p.unitsSold} sold · {formatCurrency(p.revenue)}
+                      {p.unitsSold} sold Â· {formatCurrency(p.revenue)}
                     </span>
                   </li>
                 ))}
@@ -127,3 +127,4 @@ export default function Analytics() {
     </div>
   );
 }
+

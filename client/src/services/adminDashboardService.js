@@ -1,4 +1,4 @@
-import { apiRequest, buildQuery } from "./api";
+﻿import { apiRequest, buildQuery } from "./api";
 
 export const adminDashboardService = {
   async getStats() {
@@ -11,3 +11,4 @@ export const adminDashboardService = {
     return { series: data.series, topProducts: data.topProducts, range: data.range };
   },
 };
+

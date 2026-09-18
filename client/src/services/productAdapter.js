@@ -1,4 +1,4 @@
-/**
+﻿/**
  * The premium UI (ProductCard, QuickViewModal, Cart, Wishlist, Shop, Home
  * sections...) was built against a simple mock shape:
  *   { id, name, category, price, oldPrice, rating, image, badge, description, reviewCount }
@@ -38,7 +38,7 @@ function toSteps(text) {
   return parts.length ? parts : [text];
 }
 
-/** Card/list shape — used by ProductCard, QuickViewModal, RelatedProducts, cart/wishlist entries. */
+/** Card/list shape â€” used by ProductCard, QuickViewModal, RelatedProducts, cart/wishlist entries. */
 export function toCardProduct(doc) {
   if (!doc) return null;
   const oldPrice =
@@ -60,7 +60,7 @@ export function toCardProduct(doc) {
   };
 }
 
-/** Full detail shape — used by the Product Details page. */
+/** Full detail shape â€” used by the Product Details page. */
 export function toDetailProduct(doc) {
   if (!doc) return null;
   const card = toCardProduct(doc);
@@ -83,3 +83,4 @@ export function toDetailProduct(doc) {
 export function toCardProducts(docs = []) {
   return docs.map(toCardProduct);
 }
+

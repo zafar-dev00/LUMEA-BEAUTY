@@ -1,4 +1,4 @@
-import { apiRequest, buildQuery } from './api';
+﻿import { apiRequest, buildQuery } from './api';
 
 export const getUPIPayment = async (amount, orderId) => {
   const query = buildQuery({ amount, orderId });
@@ -17,3 +17,4 @@ export const generateQRCodeURL = (upiString) => {
   // Google Charts API for QR codes
   return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(upiString)}`;
 };
+

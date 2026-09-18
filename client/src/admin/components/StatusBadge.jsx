@@ -1,4 +1,4 @@
-const TONE_MAP = {
+﻿const TONE_MAP = {
   // Order statuses
   Pending: "bg-nude/40 text-charcoal-soft",
   Confirmed: "bg-blush text-rose-dark",
@@ -37,3 +37,4 @@ export default function StatusBadge({ status }) {
     </span>
   );
 }
+

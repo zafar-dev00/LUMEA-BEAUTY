@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
@@ -438,7 +438,7 @@ export default function Checkout() {
               <div className="border-t border-stone-200 pt-4 space-y-2 text-sm text-stone-600">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${Number(subtotal).toFixed(2)}</span>
+                  <span>₹{Number(subtotal).toFixed(2)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-emerald-700">
@@ -448,7 +448,7 @@ export default function Checkout() {
                 )}
                 <div className="flex justify-between text-base font-serif font-semibold text-stone-900 border-t border-stone-200 pt-3">
                   <span>Total</span>
-                  <span>${Number(total).toFixed(2)}</span>
+                  <span>₹{Number(total).toFixed(2)}</span>
                 </div>
               </div>
 
@@ -457,7 +457,7 @@ export default function Checkout() {
                 disabled={loading || items.length === 0}
                 className="w-full bg-stone-900 text-white py-3.5 text-xs uppercase tracking-widest hover:bg-stone-800 transition-colors disabled:bg-stone-400 font-medium cursor-pointer"
               >
-                {loading ? 'Processing Order...' : `Place Order • $${Number(total).toFixed(2)}`}
+                {loading ? 'Processing Order...' : `Place Order â€¢ $${Number(total).toFixed(2)}`}
               </button>
             </div>
           </div>

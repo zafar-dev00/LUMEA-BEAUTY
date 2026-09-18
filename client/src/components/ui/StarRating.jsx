@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+﻿import { Star } from "lucide-react";
 
 export default function StarRating({ rating = 0, size = 14 }) {
   const rounded = Math.round(rating);
@@ -14,3 +14,4 @@ export default function StarRating({ rating = 0, size = 14 }) {
     </div>
   );
 }
+

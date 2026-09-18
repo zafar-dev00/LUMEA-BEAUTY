@@ -1,4 +1,4 @@
-const variants = {
+﻿const variants = {
   primary:
     "bg-charcoal text-ivory hover:bg-charcoal-soft border border-charcoal",
   secondary:
@@ -31,3 +31,4 @@ export default function Button({
     </Tag>
   );
 }
+

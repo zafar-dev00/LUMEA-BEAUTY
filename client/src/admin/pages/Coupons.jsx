@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, TicketPercent } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
@@ -214,7 +214,7 @@ export default function AdminCoupons() {
                 <tr key={c._id} className="border-b border-charcoal/5 last:border-0">
                   <td className="px-5 py-3 text-charcoal font-medium">{c.code}</td>
                   <td className="px-5 py-3 text-charcoal-soft">{c.discountPercentage}%</td>
-                  <td className="px-5 py-3 text-charcoal-soft">₹{c.minOrder || 0}</td>
+                  <td className="px-5 py-3 text-charcoal-soft">â‚¹{c.minOrder || 0}</td>
                   <td className="px-5 py-3 text-charcoal-soft">
                     {new Date(c.expiryDate).toLocaleDateString()}
                   </td>
@@ -300,7 +300,7 @@ export default function AdminCoupons() {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="coupon-minOrder" className={labelClasses}>Minimum Order (₹)</label>
+                  <label htmlFor="coupon-minOrder" className={labelClasses}>Minimum Order (â‚¹)</label>
                   <input
                     id="coupon-minOrder"
                     type="number"
@@ -311,7 +311,7 @@ export default function AdminCoupons() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="coupon-maxDiscount" className={labelClasses}>Maximum Discount (₹)</label>
+                  <label htmlFor="coupon-maxDiscount" className={labelClasses}>Maximum Discount (â‚¹)</label>
                   <input
                     id="coupon-maxDiscount"
                     type="number"
@@ -386,7 +386,7 @@ export default function AdminCoupons() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Are you sure you want to delete this coupon?"
-        message={deleteTarget ? `"${deleteTarget.code}" will be permanently removed.` : ""}
+        message={deleteTarget ? `"₹{deleteTarget.code}" will be permanently removed.` : ""}
         confirmLabel={deleting ? "Deleting..." : "Delete"}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
@@ -394,3 +394,4 @@ export default function AdminCoupons() {
     </div>
   );
 }
+

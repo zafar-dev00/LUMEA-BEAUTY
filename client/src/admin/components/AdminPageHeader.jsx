@@ -1,4 +1,4 @@
-export default function AdminPageHeader({ title, subtitle, actions }) {
+﻿export default function AdminPageHeader({ title, subtitle, actions }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
       <div>
@@ -9,3 +9,4 @@ export default function AdminPageHeader({ title, subtitle, actions }) {
     </div>
   );
 }
+

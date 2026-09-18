@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, Search, User, Heart, ShoppingBag, ArrowRight, Home } from "lucide-react";
@@ -81,7 +81,7 @@ export default function Navbar() {
     <>
       <header className="sticky top-0 z-40 bg-ivory/95 backdrop-blur border-b border-nude/40">
         <div className="border-b border-nude/40 bg-charcoal text-ivory text-center text-[11px] tracking-luxe uppercase py-2 px-4">
-          Free shipping on all orders over $75
+          Free shipping on all orders over ₹75
         </div>
 
         <nav className="container-luxe flex items-center justify-between h-20">
@@ -97,7 +97,7 @@ export default function Navbar() {
             to="/"
             className="text-2xl sm:text-3xl font-display tracking-luxe text-charcoal mx-auto lg:mx-0"
           >
-            LUMÉA
+            LUMÃ‰A
           </Link>
 
           {/* Desktop links */}
@@ -272,7 +272,7 @@ export default function Navbar() {
                   }}
                 >
                   <span className="text-2xl font-display tracking-luxe text-charcoal">
-                    LUMÉA
+                    LUMÃ‰A
                   </span>
                   <button
                     onClick={() => setOpen(false)}

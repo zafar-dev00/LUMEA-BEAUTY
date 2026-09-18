@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+﻿import { apiRequest } from "./api";
 
 export const couponService = {
   async validateCoupon(code, subtotal) {
@@ -10,3 +10,4 @@ export const couponService = {
     return data.coupon;
   },
 };
+

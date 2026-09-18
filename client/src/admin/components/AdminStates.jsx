@@ -1,4 +1,4 @@
-export function AdminEmptyState({ icon: Icon, title, description, action }) {
+﻿export function AdminEmptyState({ icon: Icon, title, description, action }) {
   return (
     <div className="text-center py-16 border border-dashed border-charcoal/15">
       {Icon && <Icon size={36} className="mx-auto text-nude-dark" />}
@@ -39,3 +39,4 @@ export function AdminErrorState({ message, onRetry }) {
     </div>
   );
 }
+

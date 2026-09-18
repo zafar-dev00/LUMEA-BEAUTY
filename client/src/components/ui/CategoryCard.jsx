@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 
 export default function CategoryCard({ category }) {
   const { name, image, count } = category;
@@ -21,3 +21,4 @@ export default function CategoryCard({ category }) {
     </Link>
   );
 }
+

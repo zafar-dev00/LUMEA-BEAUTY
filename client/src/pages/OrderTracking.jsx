@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useSearchParams, useParams, Link } from 'react-router-dom';
 import { getOrderById } from '../services/orderService';
 
@@ -196,7 +196,7 @@ export default function OrderTracking() {
               to="/account/orders"
               className="text-xs uppercase tracking-wider font-semibold text-stone-800 underline hover:text-stone-600"
             >
-              ← Back to All Orders
+              â† Back to All Orders
             </Link>
             <Link
               to="/shop"

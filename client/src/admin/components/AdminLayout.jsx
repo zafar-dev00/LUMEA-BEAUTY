@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { Menu, ExternalLink } from "lucide-react";
 import AdminSidebar, { MobileSidebarClose } from "./AdminSidebar";
@@ -52,7 +52,7 @@ export default function AdminLayout() {
             </button>
 
             <p className="hidden lg:block text-sm uppercase tracking-luxe text-charcoal-soft">
-              LUMÉA Beauty Admin
+              LUMÃ‰A Beauty Admin
             </p>
 
             <div className="flex items-center gap-5 text-sm">
@@ -79,3 +79,4 @@ export default function AdminLayout() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingBag } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
@@ -131,7 +131,7 @@ export default function AdminOrders() {
                   <td className="px-5 py-3 text-charcoal-soft">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-5 py-3 text-charcoal">₹{order.total}</td>
+                  <td className="px-5 py-3 text-charcoal">â‚¹{order.total}</td>
                   <td className="px-5 py-3">
                     <StatusBadge status={order.payment?.status} />
                   </td>
@@ -155,3 +155,4 @@ export default function AdminOrders() {
     </div>
   );
 }
+

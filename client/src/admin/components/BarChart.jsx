@@ -1,5 +1,5 @@
-/**
- * Deliberately hand-rolled instead of pulling in a chart library — the
+﻿/**
+ * Deliberately hand-rolled instead of pulling in a chart library â€” the
  * dashboard only needs simple bar charts, so a small SVG component keeps
  * the dependency list unchanged (per "do not add unnecessary libraries").
  */
@@ -54,3 +54,4 @@ export default function BarChart({ data = [], valueFormatter = (v) => v, height 
     </div>
   );
 }
+

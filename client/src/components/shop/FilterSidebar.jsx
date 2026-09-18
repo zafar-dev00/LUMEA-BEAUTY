@@ -1,4 +1,4 @@
-import StarRating from "../ui/StarRating";
+﻿import StarRating from "../ui/StarRating";
 
 const DEFAULT_CATEGORY_OPTIONS = ["Skincare", "Makeup", "Fragrance", "Haircare"];
 const RATING_OPTIONS = [4, 3, 2];
@@ -61,7 +61,7 @@ export default function FilterSidebar({
             className="w-full border border-charcoal/20 bg-ivory px-3 py-2 text-sm focus:outline-none focus:border-rose"
             aria-label="Minimum price"
           />
-          <span className="text-nude-dark">—</span>
+          <span className="text-nude-dark">â€”</span>
           <input
             type="number"
             min="0"
@@ -144,3 +144,4 @@ export default function FilterSidebar({
     </div>
   );
 }
+

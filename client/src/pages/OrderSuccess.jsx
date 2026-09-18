@@ -1,4 +1,4 @@
-import { Link, useLocation, Navigate } from "react-router-dom";
+﻿import { Link, useLocation, Navigate } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import Button from "../components/ui/Button";
 import { getLastOrder, formatDate } from "../utils/order";
@@ -21,7 +21,7 @@ export default function OrderSuccess() {
           Order Confirmed
         </h1>
         <p className="mt-2 text-charcoal-soft">
-          Thank you — your LUMÉA order has been placed successfully.
+          Thank you â€” your LUMÃ‰A order has been placed successfully.
         </p>
 
         <div className="mt-10 border border-charcoal/10 bg-cream p-6 sm:p-8 text-left space-y-4">
@@ -67,3 +67,4 @@ export default function OrderSuccess() {
     </div>
   );
 }
+

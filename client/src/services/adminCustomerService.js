@@ -1,4 +1,4 @@
-import { apiRequest, buildQuery } from "./api";
+﻿import { apiRequest, buildQuery } from "./api";
 
 export const adminCustomerService = {
   async getCustomers({ search, page = 1, limit = 20 } = {}) {
@@ -20,3 +20,4 @@ export const adminCustomerService = {
     return data.customer;
   },
 };
+

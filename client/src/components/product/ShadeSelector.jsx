@@ -1,10 +1,10 @@
-export default function ShadeSelector({ shades, selected, onSelect }) {
+﻿export default function ShadeSelector({ shades, selected, onSelect }) {
   if (!shades || shades.length === 0) return null;
 
   return (
     <div>
       <h3 className="text-xs uppercase tracking-luxe text-charcoal mb-3">
-        Shade — <span className="text-charcoal-soft normal-case">{selected?.name}</span>
+        Shade â€” <span className="text-charcoal-soft normal-case">{selected?.name}</span>
       </h3>
       <div className="flex flex-wrap gap-3">
         {shades.map((shade) => (
@@ -27,3 +27,4 @@ export default function ShadeSelector({ shades, selected, onSelect }) {
     </div>
   );
 }
+

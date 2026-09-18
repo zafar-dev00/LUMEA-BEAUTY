@@ -1,4 +1,4 @@
-import { apiRequest } from "./api";
+﻿import { apiRequest } from "./api";
 
 export const adminCategoryService = {
   async getCategories() {
@@ -20,3 +20,4 @@ export const adminCategoryService = {
     await apiRequest(`/admin/categories/${id}`, { method: "DELETE" });
   },
 };
+

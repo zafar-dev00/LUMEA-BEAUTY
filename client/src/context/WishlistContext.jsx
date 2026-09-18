@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+﻿import { createContext, useContext, useEffect, useState } from "react";
 
 const WishlistContext = createContext(null);
 const STORAGE_KEY = "lumea_wishlist";
@@ -79,3 +79,4 @@ export function useWishlist() {
   if (!ctx) throw new Error("useWishlist must be used within a WishlistProvider");
   return ctx;
 }
+

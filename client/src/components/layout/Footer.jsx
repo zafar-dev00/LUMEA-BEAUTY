@@ -1,4 +1,4 @@
-import { Camera, Globe, Mail } from "lucide-react";
+﻿import { Camera, Globe, Mail } from "lucide-react";
 
 const columns = [
   {
@@ -21,7 +21,7 @@ export default function Footer() {
       <div className="container-luxe py-16 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <h2 className="text-2xl font-display tracking-luxe text-ivory">
-            LUMÉA
+            LUMÃ‰A
           </h2>
           <p className="mt-4 text-sm text-cream/70 leading-relaxed max-w-xs">
             Clean, elegant beauty essentials crafted for the modern
@@ -60,10 +60,11 @@ export default function Footer() {
 
       <div className="border-t border-cream/10">
         <div className="container-luxe py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-cream/60 uppercase tracking-luxe">
-          <p>© {new Date().getFullYear()} LUMÉA Beauty. All rights reserved.</p>
+          <p>Â© {new Date().getFullYear()} LUMÃ‰A Beauty. All rights reserved.</p>
           <p>Crafted with care, worldwide.</p>
         </div>
       </div>
     </footer>
   );
 }
+

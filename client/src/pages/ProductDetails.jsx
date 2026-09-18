@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Heart, ShoppingBag, Zap, ChevronRight } from "lucide-react";
 import { productService } from "../services/productService";
@@ -263,3 +263,4 @@ export default function ProductDetails() {
     </div>
   );
 }
+

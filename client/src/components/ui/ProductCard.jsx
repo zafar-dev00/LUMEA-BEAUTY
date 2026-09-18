@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { Heart, ShoppingBag, Eye } from "lucide-react";
 import StarRating from "./StarRating";
 import { useCart } from "../../context/CartContext";
@@ -106,3 +106,4 @@ export default function ProductCard({ product, onQuickView }) {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
@@ -9,7 +9,7 @@ import { adminCustomerService } from "../../services/adminCustomerService";
 import { useToast } from "../../context/ToastContext";
 
 function formatCurrency(value) {
-  return `₹${Number(value || 0).toLocaleString("en-IN")}`;
+  return `â‚¹${Number(value || 0).toLocaleString("en-IN")}`;
 }
 
 export default function AdminCustomerDetails() {
@@ -179,3 +179,4 @@ export default function AdminCustomerDetails() {
     </div>
   );
 }
+

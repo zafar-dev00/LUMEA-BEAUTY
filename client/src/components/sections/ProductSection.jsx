@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import ProductCard from "../ui/ProductCard";
 import Button from "../ui/Button";
 import { ProductGridSkeleton } from "../ui/Skeleton";
@@ -47,3 +47,4 @@ export default function ProductSection({
     </section>
   );
 }
+

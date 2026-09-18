@@ -1,4 +1,4 @@
-import { apiRequest } from './api';
+﻿import { apiRequest } from './api';
 
 const RAZORPAY_SCRIPT = 'https://checkout.razorpay.com/v1/checkout.js';
 
@@ -6,7 +6,7 @@ function loadRazorpay() {
   if (window.Razorpay) return Promise.resolve();
 
   return new Promise((resolve, reject) => {
-    const existingScript = document.querySelector(`script[src="${RAZORPAY_SCRIPT}"]`);
+    const existingScript = document.querySelector(`script[src="₹{RAZORPAY_SCRIPT}"]`);
     if (existingScript) {
       existingScript.addEventListener('load', resolve, { once: true });
       existingScript.addEventListener('error', reject, { once: true });
@@ -62,3 +62,4 @@ export async function startRazorpayPayment({ amount, customer }) {
     checkout.open();
   });
 }
+
