@@ -1,9 +1,8 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, Printer, Download, Loader2 } from "lucide-react";
+import { ChevronLeft, Printer, Download } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
-import Button from "../../components/ui/Button";
 import { AdminErrorState } from "../components/AdminStates";
 import { adminOrderService } from "../../services/adminOrderService";
 import { useToast } from "../../context/ToastContext";
@@ -22,13 +21,11 @@ const ORDER_STATUSES = [
 export default function AdminOrderDetails() {
   const { id } = useParams();
   const { showToast } = useToast();
-  const invoiceRef = useRef(null);
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
-  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -56,36 +53,182 @@ export default function AdminOrderDetails() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  // 100% working Print & Save as PDF for both Laptop & Mobile
+  const handlePrintOrDownload = () => {
+    if (!order) return;
 
-  // Direct Mobile & Desktop PDF Download
-  const handleDownloadPDF = async () => {
-    const element = invoiceRef.current;
-    if (!element) return;
+    const orderRef = order.orderId || order._id || "LUMEA-ORDER";
+    const invoiceDate = new Date().toLocaleDateString("en-IN");
+    const orderDate = new Date(order.createdAt).toLocaleDateString("en-IN");
 
-    setDownloadingPdf(true);
-    try {
-      const html2pdfModule = await import("html2pdf.js");
-      const html2pdf = html2pdfModule.default || html2pdfModule;
+    const itemsRows = (order.items || [])
+      .map(
+        (item, index) => `
+        <tr>
+          <td style="border: 1px solid #777; padding: 6px; text-align: center;">${index + 1}</td>
+          <td style="border: 1px solid #777; padding: 6px; font-weight: 500;">${item.name}</td>
+          <td style="border: 1px solid #777; padding: 6px; text-align: center;">${item.qty}</td>
+          <td style="border: 1px solid #777; padding: 6px; text-align: right;">₹${Number(item.price).toFixed(2)}</td>
+          <td style="border: 1px solid #777; padding: 6px; text-align: right;">₹${(Number(item.price) * Number(item.qty)).toFixed(2)}</td>
+        </tr>
+      `
+      )
+      .join("");
 
-      const orderRef = order.orderId || order._id || "LUMEA-ORDER";
-      const opt = {
-        margin: [8, 8, 8, 8],
-        filename: `Invoice-${orderRef}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, logging: false },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      };
+    const discountRow =
+      order.discount > 0
+        ? `<tr>
+            <td style="border: 1px solid #777; padding: 6px; color: #15803d;">Discount ${order.couponCode ? `(${order.couponCode})` : ""}</td>
+            <td style="border: 1px solid #777; padding: 6px; text-align: right; color: #15803d; font-weight: 500;">-₹${Number(order.discount).toFixed(2)}</td>
+          </tr>`
+        : "";
 
-      await html2pdf().set(opt).from(element).save();
-      showToast("Invoice PDF downloaded successfully!");
-    } catch (err) {
-      console.error("PDF generation failed:", err);
-      showToast("PDF generation failed. Use browser print option.");
-    } finally {
-      setDownloadingPdf(false);
+    const taxRow =
+      order.tax > 0
+        ? `<tr>
+            <td style="border: 1px solid #777; padding: 6px;">Tax (GST)</td>
+            <td style="border: 1px solid #777; padding: 6px; text-align: right;">₹${Number(order.tax).toFixed(2)}</td>
+          </tr>`
+        : "";
+
+    const invoiceHTML = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Invoice - ${orderRef}</title>
+          <style>
+            @page { size: A4; margin: 12mm; }
+            * { box-sizing: border-box; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color: #111; margin: 0; padding: 15px; background: #fff; }
+            .invoice-box { max-width: 800px; margin: 0 auto; border: 1px solid #333; padding: 25px; }
+            .header { text-align: center; border-bottom: 1px solid #555; padding-bottom: 12px; }
+            .title { text-align: center; margin: 12px 0; }
+            .title h2 { display: inline-block; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 4px 20px; font-size: 14px; margin: 0; letter-spacing: 1.5px; }
+            .meta { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 12px; }
+            .addresses { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #777; padding: 10px; gap: 10px; font-size: 11px; margin-bottom: 15px; }
+            .addresses h4 { margin: 0 0 4px 0; font-size: 10px; text-transform: uppercase; color: #555; }
+            .addresses p { margin: 2px 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 15px; }
+            th { background: #f2f2f2; border: 1px solid #777; padding: 6px; text-align: left; }
+            .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 11px; }
+            .payment-card { border: 1px solid #777; padding: 10px; }
+            .footer { border-top: 1px solid #777; padding-top: 12px; margin-top: 15px; display: flex; justify-content: space-between; font-size: 11px; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-box">
+            <div class="header">
+              <h1 style="margin: 0; font-size: 22px; letter-spacing: 2px;">LUMÉA BEAUTY</h1>
+              <p style="margin: 4px 0; font-size: 11px; color: #555;">Plot No. 120, Premium Retail Hub, Mumbai, Maharashtra - 400088</p>
+              <p style="margin: 0; font-size: 11px; color: #555;">GSTIN: 9081XXXXXXXXXXXX | CIN: 0000000001</p>
+            </div>
+
+            <div class="title">
+              <h2>TAX INVOICE / RETAIL INVOICE</h2>
+            </div>
+
+            <div class="meta">
+              <div>
+                <p style="margin: 2px 0;"><strong>Invoice No:</strong> INV-${order._id ? order._id.slice(-8).toUpperCase() : "2026-98745"}</p>
+                <p style="margin: 2px 0;"><strong>Order ID:</strong> ${orderRef}</p>
+              </div>
+              <div style="text-align: right;">
+                <p style="margin: 2px 0;"><strong>Invoice Date:</strong> ${invoiceDate}</p>
+                <p style="margin: 2px 0;"><strong>Order Date:</strong> ${orderDate}</p>
+              </div>
+            </div>
+
+            <div class="addresses">
+              <div>
+                <h4>Sold By / Sender</h4>
+                <p><strong>LUMÉA BEAUTY RETAIL</strong></p>
+                <p>Plot No. 120, Central Hub</p>
+                <p>Mumbai, Maharashtra - 400088</p>
+                <p>GSTIN: 9081XXXXXXXXXXXX</p>
+              </div>
+              <div>
+                <h4>Bill To</h4>
+                <p><strong>${order.customer?.fullName || "Valued Customer"}</strong></p>
+                <p>${order.address?.house ? `${order.address.house}, ` : ""}${order.address?.street || ""}</p>
+                <p>${order.address?.city || ""}, ${order.address?.state || ""} - ${order.address?.pincode || ""}</p>
+                <p>Phone: ${order.customer?.phone || "—"}</p>
+              </div>
+              <div>
+                <h4>Ship To</h4>
+                <p><strong>${order.customer?.fullName || "Valued Customer"}</strong></p>
+                <p>${order.address?.house ? `${order.address.house}, ` : ""}${order.address?.street || ""}</p>
+                <p>${order.address?.city || ""}, ${order.address?.state || ""} - ${order.address?.pincode || ""}</p>
+                <p>Phone: ${order.customer?.phone || "—"}</p>
+              </div>
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 40px; text-align: center;">S.No.</th>
+                  <th>Product Description</th>
+                  <th style="width: 50px; text-align: center;">Qty</th>
+                  <th style="width: 90px; text-align: right;">Unit Price (₹)</th>
+                  <th style="width: 90px; text-align: right;">Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsRows}
+              </tbody>
+            </table>
+
+            <div class="calc-grid">
+              <div class="payment-card">
+                <p style="margin: 0 0 6px 0;"><strong>Payment Mode:</strong> <span style="text-transform: uppercase;">${order.payment?.method || "COD"} (${order.payment?.status || "Pending"})</span></p>
+                <p style="margin: 15px 0 0 0; font-size: 10px; color: #555;">This is a computer-generated tax invoice, signature is not required.</p>
+                <p style="margin: 4px 0 0 0; font-size: 10px; color: #555;">Thank you for shopping with LUMÉA BEAUTY!</p>
+              </div>
+              <table>
+                <tbody>
+                  <tr>
+                    <td style="border: 1px solid #777; padding: 6px;">Subtotal</td>
+                    <td style="border: 1px solid #777; padding: 6px; text-align: right; font-weight: 500;">₹${Number(order.subtotal || 0).toFixed(2)}</td>
+                  </tr>
+                  ${discountRow}
+                  <tr>
+                    <td style="border: 1px solid #777; padding: 6px;">Delivery / Shipping</td>
+                    <td style="border: 1px solid #777; padding: 6px; text-align: right;">₹${Number(order.shipping || 0).toFixed(2)}</td>
+                  </tr>
+                  ${taxRow}
+                  <tr style="background: #f2f2f2; font-weight: bold; font-size: 12px;">
+                    <td style="border: 1px solid #777; padding: 8px;">Grand Total</td>
+                    <td style="border: 1px solid #777; padding: 8px; text-align: right;">₹${Number(order.total || 0).toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="footer">
+              <span style="font-size: 10px; color: #666; font-style: italic;">For support contact: lumea0beauty@gmail.com</span>
+              <div style="text-align: right;">
+                <p style="margin: 0; font-weight: bold; font-size: 11px;">LUMÉA BEAUTY RETAIL</p>
+                <p style="margin: 2px 0 0 0; font-size: 9px; color: #666;">Authorized Signatory</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+
+    // Open isolated print window
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.open();
+      printWindow.document.write(invoiceHTML);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 350);
+    } else {
+      // Fallback if popup blocker is enabled
+      window.print();
     }
   };
 
@@ -118,36 +261,27 @@ export default function AdminOrderDetails() {
           <ChevronLeft size={14} /> Back to Orders
         </Link>
         <div className="flex items-center gap-2">
-          <Button
+          {/* Direct HTML Native Buttons: Guaranteed click & response */}
+          <button
             type="button"
-            variant="primary"
-            size="sm"
-            onClick={handleDownloadPDF}
-            disabled={downloadingPdf}
-            className="inline-flex items-center gap-2"
+            onClick={handlePrintOrDownload}
+            className="inline-flex items-center gap-2 bg-charcoal text-ivory hover:bg-charcoal/90 px-3.5 py-2 text-xs uppercase tracking-wider transition-colors cursor-pointer"
           >
-            {downloadingPdf ? (
-              <Loader2 size={15} className="animate-spin" />
-            ) : (
-              <Download size={15} />
-            )}
-            Download PDF
-          </Button>
+            <Download size={15} /> Download PDF
+          </button>
 
-          <Button
+          <button
             type="button"
-            variant="secondary"
-            size="sm"
-            onClick={handlePrint}
-            className="inline-flex items-center gap-2"
+            onClick={handlePrintOrDownload}
+            className="inline-flex items-center gap-2 border border-charcoal/30 bg-ivory hover:bg-cream text-charcoal px-3.5 py-2 text-xs uppercase tracking-wider transition-colors cursor-pointer"
           >
             <Printer size={15} /> Print
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Screen Header */}
-      <div className="print:hidden">
+      <div>
         <AdminPageHeader
           title={order.orderId || order._id}
           subtitle={`Placed on ${new Date(order.createdAt).toLocaleString()}`}
@@ -269,153 +403,6 @@ export default function AdminOrderDetails() {
                 <StatusBadge status={order.payment?.status || "Pending"} />
               </div>
             </section>
-          </div>
-        </div>
-      </div>
-
-      {/* Printable / Downloadable Invoice Container */}
-      <div className="overflow-hidden h-0 print:h-auto">
-        <div
-          id="printable-invoice"
-          ref={invoiceRef}
-          className="text-black bg-white p-8 max-w-[820px] mx-auto text-xs font-sans border border-gray-400"
-        >
-          {/* Header */}
-          <div className="text-center pb-2 border-b border-gray-400">
-            <h1 className="text-2xl font-bold tracking-widest uppercase text-black">LUMÉA BEAUTY</h1>
-            <p className="text-[11px] text-gray-700 mt-1">
-              Plot No. 120, Premium Retail Hub, Mumbai, Maharashtra - 400088
-            </p>
-            <p className="text-[11px] text-gray-700">
-              GSTIN: 9081XXXXXXXXXXXX | CIN: 0000000001
-            </p>
-          </div>
-
-          {/* Title */}
-          <div className="text-center my-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider border-y border-black py-1 inline-block px-8">
-              TAX INVOICE / RETAIL INVOICE
-            </h2>
-          </div>
-
-          {/* Invoice Meta */}
-          <div className="flex justify-between items-start mb-3 text-[11px] leading-tight">
-            <div>
-              <p><span className="font-semibold">Invoice No:</span> INV-{order._id ? order._id.slice(-8).toUpperCase() : "2026-98745"}</p>
-              <p><span className="font-semibold">Order ID:</span> {order.orderId || order._id}</p>
-            </div>
-            <div className="text-right">
-              <p><span className="font-semibold">Invoice Date:</span> {new Date().toLocaleDateString("en-IN")}</p>
-              <p><span className="font-semibold">Order Date:</span> {new Date(order.createdAt).toLocaleDateString("en-IN")}</p>
-            </div>
-          </div>
-
-          {/* Addresses Grid */}
-          <div className="grid grid-cols-3 border border-gray-400 p-2.5 gap-2 mb-3 text-[11px] leading-tight">
-            <div>
-              <h3 className="font-bold uppercase text-[10px] text-gray-700 mb-1">Sold By / Sender</h3>
-              <p className="font-semibold">LUMÉA BEAUTY RETAIL</p>
-              <p>Plot No. 120, Central Hub</p>
-              <p>Mumbai, Maharashtra - 400088</p>
-              <p>GSTIN: 9081XXXXXXXXXXXX</p>
-            </div>
-
-            <div>
-              <h3 className="font-bold uppercase text-[10px] text-gray-700 mb-1">Bill To</h3>
-              <p className="font-semibold">{order.customer?.fullName || "Guest Customer"}</p>
-              <p>{order.address?.house ? `${order.address.house}, ` : ""}{order.address?.street || ""}</p>
-              <p>{order.address?.city}, {order.address?.state} - {order.address?.pincode}</p>
-              <p>Phone: {order.customer?.phone || "—"}</p>
-            </div>
-
-            <div>
-              <h3 className="font-bold uppercase text-[10px] text-gray-700 mb-1">Ship To</h3>
-              <p className="font-semibold">{order.customer?.fullName || "Guest Customer"}</p>
-              <p>{order.address?.house ? `${order.address.house}, ` : ""}{order.address?.street || ""}</p>
-              <p>{order.address?.city}, {order.address?.state} - {order.address?.pincode}</p>
-              <p>Phone: {order.customer?.phone || "—"}</p>
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <table className="w-full border-collapse border border-gray-400 mb-3 text-[11px]">
-            <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="border border-gray-400 p-1.5 w-10 text-center">S.No.</th>
-                <th className="border border-gray-400 p-1.5">Product Description</th>
-                <th className="border border-gray-400 p-1.5 text-center w-12">Qty</th>
-                <th className="border border-gray-400 p-1.5 text-right w-24">Unit Price (₹)</th>
-                <th className="border border-gray-400 p-1.5 text-right w-24">Total Amount (₹)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items?.map((item, index) => (
-                <tr key={index}>
-                  <td className="border border-gray-400 p-1.5 text-center">{index + 1}</td>
-                  <td className="border border-gray-400 p-1.5 font-medium">{item.name}</td>
-                  <td className="border border-gray-400 p-1.5 text-center">{item.qty}</td>
-                  <td className="border border-gray-400 p-1.5 text-right">₹{Number(item.price).toFixed(2)}</td>
-                  <td className="border border-gray-400 p-1.5 text-right">₹{(Number(item.price) * Number(item.qty)).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Pricing & Footer Calculations */}
-          <div className="grid grid-cols-2 gap-3 items-start mb-4">
-            <div className="border border-gray-400 p-2 text-[11px] leading-relaxed">
-              <p className="font-semibold">
-                Payment Mode: <span className="uppercase">{order.payment?.method || "COD"} ({order.payment?.status || "Pending"})</span>
-              </p>
-              <p className="mt-2 text-[10px] text-gray-600">
-                This is a computer-generated tax invoice, signature is not required.
-              </p>
-              <p className="text-[10px] text-gray-600">
-                Thank you for shopping with LUMÉA BEAUTY!
-              </p>
-            </div>
-
-            <table className="w-full border-collapse border border-gray-400 text-[11px]">
-              <tbody>
-                <tr>
-                  <td className="border border-gray-400 p-1.5">Subtotal</td>
-                  <td className="border border-gray-400 p-1.5 text-right font-medium">₹{Number(order.subtotal || 0).toFixed(2)}</td>
-                </tr>
-                {order.discount > 0 && (
-                  <tr>
-                    <td className="border border-gray-400 p-1.5 text-green-700">
-                      Discount {order.couponCode ? `(${order.couponCode})` : ""}
-                    </td>
-                    <td className="border border-gray-400 p-1.5 text-right text-green-700 font-medium">
-                      -₹{Number(order.discount).toFixed(2)}
-                    </td>
-                  </tr>
-                )}
-                <tr>
-                  <td className="border border-gray-400 p-1.5">Delivery / Shipping</td>
-                  <td className="border border-gray-400 p-1.5 text-right">₹{Number(order.shipping || 0).toFixed(2)}</td>
-                </tr>
-                {order.tax > 0 && (
-                  <tr>
-                    <td className="border border-gray-400 p-1.5">Tax (GST)</td>
-                    <td className="border border-gray-400 p-1.5 text-right">₹{Number(order.tax).toFixed(2)}</td>
-                  </tr>
-                )}
-                <tr className="bg-gray-100 font-bold text-xs">
-                  <td className="border border-gray-400 p-2">Grand Total</td>
-                  <td className="border border-gray-400 p-2 text-right">₹{Number(order.total || 0).toFixed(2)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* Bottom Signatory */}
-          <div className="border-t border-gray-400 pt-3 flex justify-between items-end">
-            <p className="text-[10px] text-gray-500 italic">For any query contact: lumea0beauty@gmail.com</p>
-            <div className="text-right">
-              <p className="font-bold text-xs">LUMÉA BEAUTY RETAIL</p>
-              <p className="text-[10px] text-gray-500">Authorized Signatory</p>
-            </div>
           </div>
         </div>
       </div>
