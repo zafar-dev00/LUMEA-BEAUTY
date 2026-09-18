@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft, Printer, Download } from "lucide-react";
+import { ChevronLeft, Printer, Download, Loader2 } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
 import Button from "../../components/ui/Button";
@@ -28,6 +28,7 @@ export default function AdminOrderDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -57,6 +58,35 @@ export default function AdminOrderDetails() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  // Direct Mobile & Desktop PDF Download
+  const handleDownloadPDF = async () => {
+    const element = invoiceRef.current;
+    if (!element) return;
+
+    setDownloadingPdf(true);
+    try {
+      const html2pdfModule = await import("html2pdf.js");
+      const html2pdf = html2pdfModule.default || html2pdfModule;
+
+      const orderRef = order.orderId || order._id || "LUMEA-ORDER";
+      const opt = {
+        margin: [8, 8, 8, 8],
+        filename: `Invoice-${orderRef}.pdf`,
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      showToast("Invoice PDF downloaded successfully!");
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      showToast("PDF generation failed. Use browser print option.");
+    } finally {
+      setDownloadingPdf(false);
+    }
   };
 
   if (loading) {
@@ -92,10 +122,26 @@ export default function AdminOrderDetails() {
             type="button"
             variant="primary"
             size="sm"
+            onClick={handleDownloadPDF}
+            disabled={downloadingPdf}
+            className="inline-flex items-center gap-2"
+          >
+            {downloadingPdf ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Download size={15} />
+            )}
+            Download PDF
+          </Button>
+
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
             onClick={handlePrint}
             className="inline-flex items-center gap-2"
           >
-            <Printer size={15} /> Print / Save as PDF
+            <Printer size={15} /> Print
           </Button>
         </div>
       </div>
@@ -227,9 +273,13 @@ export default function AdminOrderDetails() {
         </div>
       </div>
 
-      {/* Printable Invoice Container (Only visible during print / PDF export) */}
-      <div id="printable-invoice" ref={invoiceRef} className="hidden print:block text-black bg-white">
-        <div className="p-8 max-w-[820px] mx-auto text-xs font-sans border border-gray-400">
+      {/* Printable / Downloadable Invoice Container */}
+      <div className="overflow-hidden h-0 print:h-auto">
+        <div
+          id="printable-invoice"
+          ref={invoiceRef}
+          className="text-black bg-white p-8 max-w-[820px] mx-auto text-xs font-sans border border-gray-400"
+        >
           {/* Header */}
           <div className="text-center pb-2 border-b border-gray-400">
             <h1 className="text-2xl font-bold tracking-widest uppercase text-black">LUMÉA BEAUTY</h1>
@@ -237,7 +287,7 @@ export default function AdminOrderDetails() {
               Plot No. 120, Premium Retail Hub, Mumbai, Maharashtra - 400088
             </p>
             <p className="text-[11px] text-gray-700">
-              GSTIN: 27AABCL1234F1Z5 | CIN: U52100MH2026PTC123456
+              GSTIN: 9081XXXXXXXXXXXX | CIN: 0000000001
             </p>
           </div>
 
@@ -267,7 +317,7 @@ export default function AdminOrderDetails() {
               <p className="font-semibold">LUMÉA BEAUTY RETAIL</p>
               <p>Plot No. 120, Central Hub</p>
               <p>Mumbai, Maharashtra - 400088</p>
-              <p>GSTIN: 27AABCL1234F1Z5</p>
+              <p>GSTIN: 9081XXXXXXXXXXXX</p>
             </div>
 
             <div>
@@ -361,7 +411,7 @@ export default function AdminOrderDetails() {
 
           {/* Bottom Signatory */}
           <div className="border-t border-gray-400 pt-3 flex justify-between items-end">
-            <p className="text-[10px] text-gray-500 italic">For any query contact: support@lumeabeauty.com</p>
+            <p className="text-[10px] text-gray-500 italic">For any query contact: lumea0beauty@gmail.com</p>
             <div className="text-right">
               <p className="font-bold text-xs">LUMÉA BEAUTY RETAIL</p>
               <p className="text-[10px] text-gray-500">Authorized Signatory</p>
