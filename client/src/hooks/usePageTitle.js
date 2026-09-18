@@ -1,13 +1,13 @@
-﻿import { useEffect } from "react";
+import { useEffect } from "react";
 
-const SITE_NAME = "LUMÃ‰A BEAUTY";
+const SITE_NAME = "LUMÉA BEAUTY";
 const DEFAULT_DESCRIPTION =
-  "LUMÃ‰A BEAUTY â€” premium clean cosmetics & skincare.";
+  "LUMÉA BEAUTY — premium clean cosmetics & skincare.";
 
 /**
  * Sets the document title (and optionally the meta description) for the
  * current page, restoring the previous values on unmount. Deliberately not
- * using a library like react-helmet â€” a single-page title update doesn't
+ * using a library like react-helmet — a single-page title update doesn't
  * need one, and the project avoids adding dependencies where a few lines
  * of plain React will do.
  */
@@ -30,4 +30,3 @@ export function usePageTitle(title, description) {
     };
   }, [title, description]);
 }
-

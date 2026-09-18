@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { authService } from '../services/authService';
 import { getToken, clearToken } from '../services/api';
 
@@ -77,14 +77,14 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(async () => {
-    // Logout is stateless server-side (see authController.logout) â€” the API
+    // Logout is stateless server-side (see authController.logout) — the API
     // call is best-effort. Local state must always clear, even if that call
     // fails (network hiccup, already-expired token), or the user would
     // appear to stay logged in.
     try {
       await authService.logout();
     } catch {
-      // ignore â€” proceed to clear local state regardless
+      // ignore — proceed to clear local state regardless
     } finally {
       setUser(null);
     }
@@ -124,4 +124,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
 }
-

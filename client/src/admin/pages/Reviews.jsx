@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Star, Trash2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
@@ -127,7 +127,7 @@ export default function AdminReviews() {
                     <div className="font-medium">{r.name}</div>
                     {r.isVerifiedPurchase && (
                       <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-                        âœ“ Verified
+                        ✓ Verified
                       </span>
                     )}
                   </td>
@@ -136,7 +136,7 @@ export default function AdminReviews() {
                   </td>
                   <td className="px-5 py-3 text-charcoal-soft">
                     <div className="flex items-center gap-1">
-                      <span className="text-amber-500">â˜…</span>
+                      <span className="text-amber-500">★</span>
                       <span>{r.rating} / 5</span>
                     </div>
                   </td>
@@ -144,7 +144,7 @@ export default function AdminReviews() {
                     <p className="line-clamp-2">{r.comment}</p>
                   </td>
                   <td className="px-5 py-3 text-charcoal-soft whitespace-nowrap">
-                    {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "â€”"}
+                    {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-5 py-3">
                     <StatusBadge status={r.status || "approved"} />

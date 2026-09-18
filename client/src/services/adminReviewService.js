@@ -1,4 +1,4 @@
-﻿import { apiRequest, buildQuery } from "./api";
+import { apiRequest, buildQuery } from "./api";
 
 export const adminReviewService = {
   async getReviews(status) {

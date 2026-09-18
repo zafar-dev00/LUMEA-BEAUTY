@@ -1,4 +1,4 @@
-﻿import { apiRequest, buildQuery } from "./api";
+import { apiRequest, buildQuery } from "./api";
 
 /**
  * Unlike services/productService.js (used by the customer site), this
@@ -32,4 +32,3 @@ export const adminProductService = {
     await apiRequest(`/admin/products/${id}`, { method: "DELETE" });
   },
 };
-

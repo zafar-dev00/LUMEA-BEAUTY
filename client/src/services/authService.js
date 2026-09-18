@@ -1,4 +1,4 @@
-﻿import { apiRequest, setToken, clearToken } from "./api";
+import { apiRequest, setToken, clearToken } from "./api";
 
 export const authService = {
   async register({ name, email, phone, password, confirmPassword }) {
@@ -57,4 +57,3 @@ export const authService = {
     return data.user;
   },
 };
-

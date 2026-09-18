@@ -1,4 +1,4 @@
-﻿import Button from "../ui/Button";
+import Button from "../ui/Button";
 
 export default function Newsletter() {
   return (
@@ -8,7 +8,7 @@ export default function Newsletter() {
           Stay In The Glow
         </p>
         <h2 className="text-3xl sm:text-4xl text-charcoal">
-          Join the LUMÃ‰A Circle
+          Join the LUMÉA Circle
         </h2>
         <p className="mt-3 text-charcoal-soft">
           Sign up for early access to new launches, exclusive offers, and
@@ -33,4 +33,3 @@ export default function Newsletter() {
     </section>
   );
 }
-

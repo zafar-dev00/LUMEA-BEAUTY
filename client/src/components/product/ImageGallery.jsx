@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 
 export default function ImageGallery({ images, name, badge }) {
   const [active, setActive] = useState(0);
@@ -8,7 +8,7 @@ export default function ImageGallery({ images, name, badge }) {
       <div className="relative overflow-hidden bg-cream aspect-square">
         <img
           src={images[active]}
-          alt={`${name} â€” view ${active + 1}`}
+          alt={`${name} — view ${active + 1}`}
           className="h-full w-full object-cover"
         />
         {badge && (
@@ -46,4 +46,3 @@ export default function ImageGallery({ images, name, badge }) {
     </div>
   );
 }
-

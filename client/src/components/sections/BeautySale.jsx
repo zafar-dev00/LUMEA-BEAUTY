@@ -1,4 +1,4 @@
-﻿import ProductCard from "../ui/ProductCard";
+import ProductCard from "../ui/ProductCard";
 import Button from "../ui/Button";
 
 export default function BeautySale({ products = [] }) {
@@ -11,7 +11,7 @@ export default function BeautySale({ products = [] }) {
           <p className="text-xs uppercase tracking-luxe text-rose mb-3">
             Limited Time
           </p>
-          <h2 className="text-3xl sm:text-4xl text-ivory">Beauty Sale â€” Up to 35% Off</h2>
+          <h2 className="text-3xl sm:text-4xl text-ivory">Beauty Sale — Up to 35% Off</h2>
           <p className="mt-3 text-cream/70">
             Indulge in your favorites before they're gone.
           </p>
@@ -31,4 +31,3 @@ export default function BeautySale({ products = [] }) {
     </section>
   );
 }
-

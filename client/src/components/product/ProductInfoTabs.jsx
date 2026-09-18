@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 
 const TABS = ["Description", "Ingredients", "Benefits", "How to Use"];
 
@@ -67,4 +67,3 @@ export default function ProductInfoTabs({ product }) {
     </div>
   );
 }
-

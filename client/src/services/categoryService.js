@@ -1,4 +1,4 @@
-﻿import { apiRequest } from "./api";
+import { apiRequest } from "./api";
 
 export const categoryService = {
   async getCategories() {
@@ -6,4 +6,3 @@ export const categoryService = {
     return data.categories;
   },
 };
-

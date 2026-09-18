@@ -1,4 +1,4 @@
-﻿import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Pagination({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
@@ -45,4 +45,3 @@ export default function Pagination({ page, totalPages, onChange }) {
     </div>
   );
 }
-

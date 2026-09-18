@@ -1,4 +1,4 @@
-﻿import { useEffect } from "react";
+import { useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./components/layout/Navbar";
 import Footer from "./components/layout/Footer";
@@ -39,7 +39,7 @@ function CustomerApp() {
 
   useEffect(() => {
     if (new URLSearchParams(location.search).get("forbidden") === "1") {
-      showToast("403 Forbidden â€” admin access only.");
+      showToast("403 Forbidden — admin access only.");
       navigate(location.pathname, { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

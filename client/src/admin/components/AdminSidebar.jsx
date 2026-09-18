@@ -1,4 +1,4 @@
-﻿import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -29,7 +29,7 @@ export default function AdminSidebar({ onNavigate, onLogout }) {
   return (
     <div className="flex h-full flex-col bg-charcoal text-ivory">
       <div className="px-6 py-6 border-b border-ivory/10">
-        <p className="text-lg font-display tracking-luxe">LUMÃ‰A BEAUTY</p>
+        <p className="text-lg font-display tracking-luxe">LUMÉA BEAUTY</p>
         <p className="text-[10px] uppercase tracking-luxe text-nude mt-1">Admin</p>
       </div>
 
@@ -82,4 +82,3 @@ export function MobileSidebarClose({ onClose }) {
     </button>
   );
 }
-

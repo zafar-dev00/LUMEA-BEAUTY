@@ -1,4 +1,4 @@
-﻿import { apiRequest, getToken } from './api';
+import { apiRequest, getToken } from './api';
 
 const readLocalOrders = () => {
   try {

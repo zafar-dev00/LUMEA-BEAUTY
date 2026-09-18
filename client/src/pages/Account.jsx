@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/ui/Button";
@@ -23,7 +23,7 @@ export default function Account() {
         month: "long",
         day: "numeric",
       })
-    : "â€”";
+    : "—";
 
   const startEditing = () => {
     setForm({ name: user.name, phone: user.phone });
@@ -162,4 +162,3 @@ export default function Account() {
     </div>
   );
 }
-

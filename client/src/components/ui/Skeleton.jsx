@@ -1,4 +1,4 @@
-﻿export default function Skeleton({ className = "" }) {
+export default function Skeleton({ className = "" }) {
   return <div className={`animate-pulse bg-cream ${className}`} />;
 }
 
@@ -16,4 +16,3 @@ export function ProductGridSkeleton({ count = 8 }) {
     </div>
   );
 }
-

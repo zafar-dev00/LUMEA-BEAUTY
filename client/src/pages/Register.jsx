@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -68,7 +68,7 @@ export default function Register() {
       <div className="bg-cream py-12">
         <div className="container-luxe text-center">
           <p className="text-xs uppercase tracking-luxe text-rose mb-3">
-            Join LUMÃ‰A
+            Join LUMÉA
           </p>
           <h1 className="text-4xl sm:text-5xl text-charcoal">Create an Account</h1>
         </div>
@@ -245,4 +245,3 @@ export default function Register() {
     </div>
   );
 }
-

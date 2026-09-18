@@ -1,4 +1,4 @@
-﻿import { apiRequest, buildQuery } from "./api";
+import { apiRequest, buildQuery } from "./api";
 
 export const adminOrderService = {
   async getOrders({ status, search, page = 1, limit = 20 } = {}) {
@@ -20,4 +20,3 @@ export const adminOrderService = {
     return data.order;
   },
 };
-

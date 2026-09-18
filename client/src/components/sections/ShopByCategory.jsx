@@ -1,4 +1,4 @@
-﻿import CategoryCard from "../ui/CategoryCard";
+import CategoryCard from "../ui/CategoryCard";
 import Skeleton from "../ui/Skeleton";
 
 export default function ShopByCategory({ categories = [], loading = false }) {
@@ -28,4 +28,3 @@ export default function ShopByCategory({ categories = [], loading = false }) {
     </section>
   );
 }
-

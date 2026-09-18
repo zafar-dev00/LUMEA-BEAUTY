@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
@@ -64,7 +64,7 @@ export default function Cart() {
                     />
                     <div>
                       <h3 className="text-sm font-medium text-stone-900">{name}</h3>
-                      <p className="text-xs text-stone-500 mt-1">₹{price.toFixed(2)} each</p>
+                      <p className="text-xs text-stone-500 mt-1">${price.toFixed(2)} each</p>
                     </div>
                   </div>
 
@@ -98,7 +98,7 @@ export default function Cart() {
                       className="text-stone-400 hover:text-rose-600 text-sm ml-2"
                       title="Remove item"
                     >
-                      âœ•
+                      ✕
                     </button>
                   </div>
                 </div>
@@ -108,7 +108,7 @@ export default function Cart() {
 
           <div className="flex justify-between items-center pt-2">
             <Link to="/shop" className="text-xs uppercase tracking-wider underline text-stone-700 hover:text-stone-900 font-medium">
-              â† Continue Shopping
+              ← Continue Shopping
             </Link>
             {clearCart && (
               <button
@@ -130,11 +130,11 @@ export default function Cart() {
             <div className="space-y-2 text-sm text-stone-600">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{Number(subtotal).toFixed(2)}</span>
+                <span>${Number(subtotal).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-base font-serif font-semibold text-stone-900 border-t border-stone-200 pt-3">
                 <span>Total</span>
-                <span>₹{total}</span>
+                <span>${total}</span>
               </div>
             </div>
 

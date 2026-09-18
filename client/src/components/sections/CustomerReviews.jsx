@@ -1,4 +1,4 @@
-﻿import { reviews } from "../../data/products";
+import { reviews } from "../../data/products";
 import StarRating from "../ui/StarRating";
 import { Quote } from "lucide-react";
 
@@ -41,4 +41,3 @@ export default function CustomerReviews() {
     </section>
   );
 }
-

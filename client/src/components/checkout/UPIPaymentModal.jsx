@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { getUPIPayment, generateQRCodeURL, updateOrderPaymentStatus } from '../../services/upiPaymentService';
 import { useToast } from '../../context/ToastContext';
@@ -91,7 +91,7 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
               {/* Amount Display */}
               <div className="text-center border-t border-b border-stone-200 py-4">
                 <p className="text-xs uppercase tracking-wider text-stone-500 mb-1">Amount to Pay</p>
-                <p className="text-2xl font-serif text-stone-900">â‚¹{Number(amount).toFixed(2)}</p>
+                <p className="text-2xl font-serif text-stone-900">₹{Number(amount).toFixed(2)}</p>
               </div>
 
               {/* Manual UPI Link Option */}
@@ -146,4 +146,3 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
     </div>
   );
 }
-

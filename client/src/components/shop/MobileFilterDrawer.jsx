@@ -1,4 +1,4 @@
-﻿import { X } from "lucide-react";
+import { X } from "lucide-react";
 import FilterSidebar from "./FilterSidebar";
 
 export default function MobileFilterDrawer({
@@ -42,4 +42,3 @@ export default function MobileFilterDrawer({
     </div>
   );
 }
-

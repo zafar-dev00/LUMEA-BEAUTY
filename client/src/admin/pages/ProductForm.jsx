@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ChevronLeft, UploadCloud, Loader2 } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
@@ -322,7 +322,7 @@ export default function ProductForm() {
           <h2 className="text-sm uppercase tracking-luxe text-charcoal">Pricing &amp; Stock</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
-              <label htmlFor="pf-price" className={labelClasses}>Price (â‚¹)</label>
+              <label htmlFor="pf-price" className={labelClasses}>Price (₹)</label>
               <input
                 id="pf-price"
                 type="number"
@@ -335,7 +335,7 @@ export default function ProductForm() {
               {errors.price && <p className="mt-1 text-xs text-rose-dark">{errors.price}</p>}
             </div>
             <div>
-              <label htmlFor="pf-originalPrice" className={labelClasses}>Original Price (â‚¹)</label>
+              <label htmlFor="pf-originalPrice" className={labelClasses}>Original Price (₹)</label>
               <input
                 id="pf-originalPrice"
                 type="number"

@@ -1,4 +1,4 @@
-﻿import { render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CartProvider, useCart } from "./CartContext";
 
@@ -75,4 +75,3 @@ describe("CartProvider", () => {
     expect(window.localStorage.getItem("lumea_cart")).toBe("[]");
   });
 });
-

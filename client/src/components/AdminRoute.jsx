@@ -1,8 +1,8 @@
-﻿import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 /**
- * Frontend-side gate for /admin/*. This is a UX convenience only â€” the real
+ * Frontend-side gate for /admin/*. This is a UX convenience only — the real
  * boundary is enforced server-side (every /api/admin/* route requires a
  * valid JWT + role === 'ADMIN', checked against the DB user record, see
  * server/middleware/authMiddleware.js `adminOnly`). Even if this component
@@ -31,4 +31,3 @@ export default function AdminRoute({ children }) {
 
   return children;
 }
-

@@ -1,4 +1,4 @@
-﻿import { apiRequest } from "./api";
+import { apiRequest } from "./api";
 
 export const adminCouponService = {
   async getCoupons() {
@@ -20,4 +20,3 @@ export const adminCouponService = {
     await apiRequest(`/admin/coupons/${id}`, { method: "DELETE" });
   },
 };
-

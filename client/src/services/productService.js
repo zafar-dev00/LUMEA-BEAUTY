@@ -1,4 +1,4 @@
-﻿import { apiRequest, buildQuery } from "./api";
+import { apiRequest, buildQuery } from "./api";
 import { toCardProducts, toDetailProduct } from "./productAdapter";
 
 // UI sort keys -> backend sort keys (server/controllers/productController.js SORT_MAP)
@@ -44,7 +44,7 @@ export const productService = {
     };
   },
 
-  /** Fetch a larger, unfiltered batch â€” used by Home to derive Featured / Best Sellers sections. */
+  /** Fetch a larger, unfiltered batch — used by Home to derive Featured / Best Sellers sections. */
   async getProductsBatch(limit = 100) {
     const data = await apiRequest(`/products${buildQuery({ limit })}`, { auth: false });
     return toCardProducts(data.products);
@@ -64,4 +64,3 @@ export const productService = {
     return toCardProducts(data.products.filter((p) => p._id !== product.id)).slice(0, limit);
   },
 };
-

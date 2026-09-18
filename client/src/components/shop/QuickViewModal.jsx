@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { X, Minus, Plus, ShoppingBag, Heart } from "lucide-react";
 import StarRating from "../ui/StarRating";
 import Button from "../ui/Button";
@@ -134,4 +134,3 @@ export default function QuickViewModal({ product, onClose }) {
     </div>
   );
 }
-

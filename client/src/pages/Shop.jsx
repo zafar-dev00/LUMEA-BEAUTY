@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { productService } from "../services/productService";
@@ -141,7 +141,7 @@ export default function Shop() {
           </p>
           <h1 className="text-4xl sm:text-5xl text-charcoal">Shop All</h1>
           <p className="mt-3 text-charcoal-soft max-w-md mx-auto">
-            Explore every LUMÃ‰A essential, from skincare to fragrance.
+            Explore every LUMÉA essential, from skincare to fragrance.
           </p>
         </div>
       </div>
@@ -278,4 +278,3 @@ export default function Shop() {
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-﻿import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { CheckCircle } from "lucide-react";
 
 const ToastContext = createContext(null);
@@ -33,4 +33,3 @@ export function useToast() {
   if (!ctx) throw new Error("useToast must be used within a ToastProvider");
   return ctx;
 }
-

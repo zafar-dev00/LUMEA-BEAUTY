@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Tags } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
 import StatusBadge from "../components/StatusBadge";
@@ -257,7 +257,7 @@ export default function AdminCategories() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Are you sure you want to delete this category?"
-        message={deleteTarget ? `"₹{deleteTarget.name}" will be permanently removed.` : ""}
+        message={deleteTarget ? `"${deleteTarget.name}" will be permanently removed.` : ""}
         confirmLabel={deleting ? "Deleting..." : "Delete"}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}

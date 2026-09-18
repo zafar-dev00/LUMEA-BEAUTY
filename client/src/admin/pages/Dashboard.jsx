@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   IndianRupee,
@@ -15,7 +15,7 @@ import { adminDashboardService } from "../../services/adminDashboardService";
 import { adminProductService } from "../../services/adminProductService";
 
 function formatCurrency(value) {
-  return `â‚¹${Math.round(Number(value || 0)).toLocaleString("en-IN")}`;
+  return `₹${Math.round(Number(value || 0)).toLocaleString("en-IN")}`;
 }
 
 export default function Dashboard() {
@@ -76,33 +76,33 @@ export default function Dashboard() {
         <StatCard
           label="Total Revenue"
           icon={IndianRupee}
-          value={loading ? "â€”" : formatCurrency(stats?.totalRevenue)}
+          value={loading ? "—" : formatCurrency(stats?.totalRevenue)}
         />
         <StatCard
           label="Total Orders"
           icon={ShoppingBag}
-          value={loading ? "â€”" : (stats?.totalOrders ?? 0)}
+          value={loading ? "—" : (stats?.totalOrders ?? 0)}
         />
         <StatCard
           label="Total Customers"
           icon={Users}
-          value={loading ? "â€”" : (stats?.totalCustomers ?? 0)}
+          value={loading ? "—" : (stats?.totalCustomers ?? 0)}
         />
         <StatCard
           label="Total Products"
           icon={Package}
-          value={loading ? "â€”" : (stats?.totalProducts ?? 0)}
+          value={loading ? "—" : (stats?.totalProducts ?? 0)}
         />
         <StatCard
           label="Pending Orders"
           icon={Clock}
-          value={loading ? "â€”" : (stats?.pendingOrders ?? 0)}
+          value={loading ? "—" : (stats?.pendingOrders ?? 0)}
           tone={!loading && stats?.pendingOrders > 0 ? "accent" : "default"}
         />
         <StatCard
           label="Low Stock Products"
           icon={AlertTriangle}
-          value={loading ? "â€”" : (stats?.lowStockProducts ?? 0)}
+          value={loading ? "—" : (stats?.lowStockProducts ?? 0)}
           tone={!loading && stats?.lowStockProducts > 0 ? "warning" : "default"}
           hint={!loading ? `Threshold: ${stats?.lowStockThreshold ?? 10} units` : undefined}
         />

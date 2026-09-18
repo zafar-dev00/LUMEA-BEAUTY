@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search, Pencil, Trash2, Eye, Package } from "lucide-react";
 import AdminPageHeader from "../components/AdminPageHeader";
@@ -150,10 +150,10 @@ export default function AdminProducts() {
                     <p className="text-xs text-charcoal-soft">{p.brand}</p>
                   </td>
                   <td className="px-5 py-3 text-charcoal-soft">{p.category}</td>
-                  <td className="px-5 py-3 text-charcoal">â‚¹{p.price}</td>
+                  <td className="px-5 py-3 text-charcoal">₹{p.price}</td>
                   <td className="px-5 py-3 text-charcoal">{p.stock}</td>
                   <td className="px-5 py-3 text-charcoal-soft">
-                    {p.rating ? p.rating.toFixed(1) : "â€”"}
+                    {p.rating ? p.rating.toFixed(1) : "—"}
                   </td>
                   <td className="px-5 py-3">
                     <StatusBadge status={stockStatus(p.stock, threshold)} />
@@ -196,7 +196,7 @@ export default function AdminProducts() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Are you sure you want to delete this product?"
-        message={deleteTarget ? `"₹{deleteTarget.name}" will be permanently removed.` : ""}
+        message={deleteTarget ? `"${deleteTarget.name}" will be permanently removed.` : ""}
         confirmLabel={deleting ? "Deleting..." : "Delete"}
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
@@ -204,4 +204,3 @@ export default function AdminProducts() {
     </div>
   );
 }
-

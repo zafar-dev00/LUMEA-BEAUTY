@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyOrders } from '../services/orderService';
 
@@ -115,7 +115,7 @@ export default function Orders() {
                             />
                             {(item?.quantity > 1 || item?.qty > 1) && (
                               <span className="absolute bottom-0 right-0 bg-stone-900 text-white text-[9px] px-1 font-mono">
-                                Ã—{item?.quantity || item?.qty}
+                                ×{item?.quantity || item?.qty}
                               </span>
                             )}
                           </div>
@@ -134,7 +134,7 @@ export default function Orders() {
                       </span>
                       {order?.createdAt && (
                         <span className="text-xs text-stone-500">
-                          â€¢ {new Date(order.createdAt).toLocaleDateString()}
+                          • {new Date(order.createdAt).toLocaleDateString()}
                         </span>
                       )}
                     </div>

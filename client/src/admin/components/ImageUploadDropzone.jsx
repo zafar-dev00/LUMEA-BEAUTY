@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { UploadCloud, Link as LinkIcon, X, Loader2 } from "lucide-react";
 
 export default function ImageUploadDropzone({
