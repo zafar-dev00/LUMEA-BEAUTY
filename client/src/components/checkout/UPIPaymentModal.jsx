@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { X, Copy, Check } from 'lucide-react';
-import { updateOrderPaymentStatus } from '../../services/upiPaymentService';
+import { X, Copy, Check, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
 export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, onClose }) {
   const [copied, setCopied] = useState(false);
-  const [paymentVerified, setPaymentVerified] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const [utrNumber, setUtrNumber] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const { showToast } = useToast();
 
+  // Kotak811 Verified VPA & Exact NPCI Registered Name
   const upiId = '9082148681@kotakbank';
-  const cleanName = 'ZAFAR KHAN AYYUB KHAN';
+  const merchantName = 'ZAFAR KHAN AYYUB KHAN';
   const cleanAmount = Number(amount).toFixed(2);
 
-  const upiString = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(cleanName)}&am=${cleanAmount}&cu=INR&tn=${encodeURIComponent(`Order ${orderId}`)}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
+  // Standard NPCI URI Scheme
+  const upiString = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(merchantName)}&am=${cleanAmount}&cu=INR&tn=${encodeURIComponent(`Order ${orderId}`)}`;
+
+  // Reliable QR code rendering API
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(upiString)}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(upiId);
@@ -23,105 +26,128 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleVerifyPayment = async () => {
-    setVerifying(true);
-    try {
-      if (typeof updateOrderPaymentStatus === 'function') {
-        await updateOrderPaymentStatus(orderId, 'Paid', `upi_${Date.now()}`);
-      }
-      setPaymentVerified(true);
-      showToast('Payment confirmed successfully!');
-      setTimeout(() => {
-        onPaymentComplete();
-      }, 1200);
-    } catch (error) {
-      setPaymentVerified(true);
-      showToast('Payment confirmed!');
-      setTimeout(() => {
-        onPaymentComplete();
-      }, 1200);
-    } finally {
-      setVerifying(false);
+  const handleConfirm = (e) => {
+    e.preventDefault();
+
+    const cleanUtr = utrNumber.trim();
+    if (cleanUtr.length < 10) {
+      showToast('Please enter a valid 12-digit UPI Reference / UTR Number.');
+      return;
+    }
+
+    setSubmitting(true);
+    // UTR pass ho raha hai parent handler ko
+    if (typeof onPaymentComplete === 'function') {
+      onPaymentComplete(cleanUtr);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full overflow-hidden shadow-2xl border border-stone-200">
+      <div className="bg-white rounded-none max-w-md w-full overflow-hidden shadow-2xl border border-stone-200">
+        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-stone-200">
-          <h2 className="text-base font-serif font-semibold text-stone-900">UPI Payment</h2>
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={18} className="text-stone-800" />
+            <h2 className="text-base font-serif font-semibold text-stone-900">
+              UPI Direct Pay & Verification
+            </h2>
+          </div>
           <button
             onClick={onClose}
-            disabled={verifying}
-            className="text-stone-400 hover:text-stone-700 disabled:opacity-50"
+            disabled={submitting}
+            type="button"
+            className="text-stone-400 hover:text-stone-700 disabled:opacity-50 transition-colors"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
-          {!paymentVerified ? (
-            <>
-              <div className="text-center">
-                <p className="text-xs uppercase tracking-wider text-stone-500 mb-3">
-                  Scan with GPay, PhonePe, or Paytm
-                </p>
-                <div className="flex justify-center bg-[#faf8f5] p-4 rounded border border-stone-200 mx-auto w-fit">
-                  <img
-                    src={qrCodeUrl}
-                    alt="UPI QR Code"
-                    className="w-52 h-52 object-contain"
-                  />
-                </div>
-              </div>
-
-              <div className="text-center border-t border-b border-stone-200 py-3 space-y-1">
-                <p className="text-xs uppercase tracking-wider text-stone-500">Amount to Pay</p>
-                <p className="text-2xl font-serif font-bold text-stone-900">₹{cleanAmount}</p>
-
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  <span className="text-xs font-mono bg-stone-100 px-2 py-1 text-stone-700 border border-stone-200">
-                    {upiId}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="text-xs flex items-center gap-1 text-stone-600 hover:text-stone-900 underline"
-                  >
-                    {copied ? <Check size={13} className="text-green-600" /> : <Copy size={13} />}
-                    {copied ? 'Copied' : 'Copy ID'}
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <a
-                  href={upiString}
-                  className="block w-full text-center bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 py-2.5 text-xs uppercase tracking-wider font-medium transition-colors"
-                >
-                  Pay Directly via UPI App
-                </a>
-              </div>
-
-              <button
-                onClick={handleVerifyPayment}
-                disabled={verifying}
-                className="w-full bg-stone-900 text-white py-3 text-xs uppercase tracking-widest hover:bg-stone-800 transition-colors disabled:bg-stone-400 font-medium cursor-pointer"
-              >
-                {verifying ? 'Confirming Payment...' : 'I Have Completed Payment'}
-              </button>
-            </>
-          ) : (
-            <div className="text-center py-6 space-y-4">
-              <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-                <Check size={28} />
-              </div>
-              <h3 className="text-lg font-serif text-stone-900 font-medium">Payment Successful!</h3>
-              <p className="text-xs text-stone-500">
-                Your order is confirmed. Redirecting to receipt...
-              </p>
+        {/* Modal Body */}
+        <div className="p-6 space-y-4">
+          {/* QR Code Frame */}
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-wider text-stone-500 mb-2 font-medium">
+              Scan with GPay, PhonePe, or Paytm
+            </p>
+            <div className="flex justify-center bg-[#faf8f5] p-3 border border-stone-200 mx-auto w-fit">
+              <img
+                src={qrCodeUrl}
+                alt="UPI QR Code"
+                className="w-48 h-48 object-contain"
+              />
             </div>
-          )}
+            <span className="text-[10px] text-stone-500 uppercase tracking-widest mt-1 block">
+              Direct Bank Transfer (Zero Gateway Fees)
+            </span>
+          </div>
+
+          {/* Amount & VPA Details */}
+          <div className="text-center border-t border-b border-stone-200 py-3 space-y-1">
+            <p className="text-xs uppercase tracking-wider text-stone-500">Amount to Pay</p>
+            <p className="text-2xl font-serif font-bold text-stone-900">₹{cleanAmount}</p>
+
+            <div className="flex items-center justify-center gap-2 pt-1">
+              <span className="text-xs font-mono bg-stone-100 px-2.5 py-1 text-stone-800 border border-stone-200 font-medium">
+                {upiId}
+              </span>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="text-xs flex items-center gap-1 text-stone-600 hover:text-stone-900 underline font-medium"
+              >
+                {copied ? <Check size={13} className="text-emerald-600" /> : <Copy size={13} />}
+                {copied ? 'Copied' : 'Copy ID'}
+              </button>
+            </div>
+          </div>
+
+          {/* Verification Notice */}
+          <div className="bg-stone-50 p-3 border border-stone-200 text-xs text-stone-600 space-y-1">
+            <div className="flex items-center gap-1.5 font-medium text-stone-900">
+              <AlertCircle size={14} className="text-amber-600 flex-shrink-0" />
+              <span>Payment Proof Required</span>
+            </div>
+            <p className="text-[11px] leading-relaxed">
+              Payment complete karne ke baad apne banking app se 12-digit <strong>UPI Ref No. / UTR</strong> copy karke niche enter karein.
+            </p>
+          </div>
+
+          {/* UTR Form */}
+          <form onSubmit={handleConfirm} className="space-y-3 pt-1">
+            <div>
+              <label className="block text-[11px] uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                12-Digit UPI Reference / UTR Number *
+              </label>
+              <input
+                type="text"
+                required
+                maxLength={16}
+                value={utrNumber}
+                onChange={(e) => setUtrNumber(e.target.value.replace(/\s/g, ''))}
+                placeholder="e.g. 426819283746"
+                className="w-full bg-white border border-stone-300 px-3 py-2 text-xs font-mono outline-none focus:border-stone-800"
+              />
+            </div>
+
+            {/* Mobile Deep Link Option */}
+            <div>
+              <a
+                href={upiString}
+                className="block w-full text-center bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 py-2.5 text-xs uppercase tracking-wider font-medium transition-colors"
+              >
+                Open UPI App on Mobile
+              </a>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting || utrNumber.trim().length < 10}
+              className="w-full bg-stone-900 text-white py-3 text-xs uppercase tracking-widest hover:bg-stone-800 transition-colors disabled:bg-stone-400 font-medium cursor-pointer"
+            >
+              {submitting ? 'Verifying & Submitting...' : 'Submit UTR & Confirm Order'}
+            </button>
+          </form>
         </div>
       </div>
     </div>

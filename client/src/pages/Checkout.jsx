@@ -28,6 +28,7 @@ export default function Checkout() {
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
 
+  // Default payment method UPI QR
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -129,9 +130,9 @@ export default function Checkout() {
 
     setLoading(true);
 
-    // Option 1: UPI Flow (Pehle modal aayega, payment confirm hone par order banega)
+    // Option 1: UPI Payment (Modal pehle open hoga, database me order payment verification ke baad banega)
     if (formData.paymentMethod === 'upi') {
-      const payload = buildPayload('upi', 'Pending');
+      const payload = buildPayload('upi', 'Pending Verification');
       setPendingPayload(payload);
       setShowUPIModal(true);
       setLoading(false);
@@ -156,7 +157,8 @@ export default function Checkout() {
     }
   };
 
-  const handleUPIPaymentComplete = async () => {
+  // UPI Modal me jab user UTR submit karega tab ye trigger hoga
+  const handleUPIPaymentComplete = async (utrNumber) => {
     if (!pendingPayload) return;
 
     try {
@@ -165,8 +167,8 @@ export default function Checkout() {
         ...pendingPayload,
         payment: {
           ...pendingPayload.payment,
-          status: 'Paid',
-          reference: `upi_${Date.now()}`,
+          status: 'Pending Verification',
+          reference: utrNumber || `UPI-UTR-${Date.now()}`,
         },
       };
 
@@ -176,11 +178,11 @@ export default function Checkout() {
 
       clearCart();
       setShowUPIModal(false);
-      showToast('Payment confirmed! Order confirmed!');
+      showToast('Payment proof submitted! Order confirmed.');
       navigate(`/order-success?orderId=${encodeURIComponent(orderRef)}`);
     } catch (err) {
       console.error('Order creation failed:', err);
-      showToast('Failed to save order.');
+      showToast('Failed to save order. Please contact support.');
     } finally {
       setLoading(false);
     }
@@ -219,6 +221,7 @@ export default function Checkout() {
 
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-7 space-y-6">
+            {/* 1. Customer Information */}
             <div className="bg-[#faf8f5] border border-stone-200 p-6 space-y-4">
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
                 1. Customer Information
@@ -269,6 +272,7 @@ export default function Checkout() {
               </div>
             </div>
 
+            {/* 2. Shipping Address */}
             <div className="bg-[#faf8f5] border border-stone-200 p-6 space-y-4">
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
                 2. Shipping Address
@@ -350,6 +354,7 @@ export default function Checkout() {
               </div>
             </div>
 
+            {/* 3. Payment Method Selection */}
             <div className="bg-[#faf8f5] border border-stone-200 p-6 space-y-4">
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
                 3. Payment Method
@@ -364,8 +369,12 @@ export default function Checkout() {
                     onChange={handleChange}
                   />
                   <div>
-                    <span className="text-sm text-stone-900 font-medium block">UPI Payment (Scan QR Code)</span>
-                    <span className="text-[11px] text-stone-500">Pay via Google Pay, PhonePe, Paytm or any UPI app</span>
+                    <span className="text-sm text-stone-900 font-medium block">
+                      UPI Payment (Scan QR Code)
+                    </span>
+                    <span className="text-[11px] text-stone-500">
+                      Pay via Google Pay, PhonePe, Paytm or any UPI app
+                    </span>
                   </div>
                 </label>
 
@@ -378,14 +387,19 @@ export default function Checkout() {
                     onChange={handleChange}
                   />
                   <div>
-                    <span className="text-sm text-stone-900 font-medium block">Cash on Delivery (COD)</span>
-                    <span className="text-[11px] text-stone-500">Pay cash upon delivery</span>
+                    <span className="text-sm text-stone-900 font-medium block">
+                      Cash on Delivery (COD)
+                    </span>
+                    <span className="text-[11px] text-stone-500">
+                      Pay cash upon delivery
+                    </span>
                   </div>
                 </label>
               </div>
             </div>
           </div>
 
+          {/* Sidebar Summary */}
           <div className="lg:col-span-5">
             <div className="bg-[#faf8f5] border border-stone-200 p-6 sticky top-24 space-y-6">
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
@@ -416,6 +430,7 @@ export default function Checkout() {
                 ))}
               </div>
 
+              {/* Coupon Form */}
               <div className="border-t border-stone-200 pt-4">
                 {appliedCoupon ? (
                   <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs">
@@ -451,6 +466,7 @@ export default function Checkout() {
                 )}
               </div>
 
+              {/* Price Calculation */}
               <div className="border-t border-stone-200 pt-4 space-y-2 text-sm text-stone-600">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -480,6 +496,7 @@ export default function Checkout() {
         </form>
       </div>
 
+      {/* Real UPI QR Modal with 12-digit UTR verification */}
       {showUPIModal && (
         <UPIPaymentModal
           orderId={`TEMP-${Date.now().toString(36).toUpperCase()}`}
