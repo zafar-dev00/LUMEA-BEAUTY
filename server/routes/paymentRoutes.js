@@ -4,9 +4,8 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.use(protect);
-router.post('/order', createPaymentOrder);
-router.post('/verify', verifyPayment);
-router.get('/upi', getUPIPayment);
+router.post('/order', protect, createPaymentOrder);
+router.post('/verify', protect, verifyPayment);
+router.get('/upi', protect, getUPIPayment);
 
 module.exports = router;

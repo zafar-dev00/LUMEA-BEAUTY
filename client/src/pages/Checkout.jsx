@@ -5,6 +5,8 @@ import { useToast } from '../context/ToastContext';
 import { createOrder } from '../services/orderService';
 import UPIPaymentModal from '../components/checkout/UPIPaymentModal';
 
+const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_Tf93J72Y4uL3I8';
+
 export default function Checkout() {
   const navigate = useNavigate();
   const {
@@ -37,7 +39,7 @@ export default function Checkout() {
     state: '',
     pincode: '',
     deliveryMethod: 'standard',
-    paymentMethod: 'cod',
+    paymentMethod: 'razorpay',
   });
 
   const handleChange = (e) => {
@@ -60,6 +62,46 @@ export default function Checkout() {
     } else if (result.status === 'invalid') {
       showToast(result.message || 'That coupon code is not valid.');
     }
+  };
+
+  // Video jaisa Razorpay Checkout Modal
+  const openRazorpayCheckout = (order, orderRef) => {
+    if (!window.Razorpay) {
+      showToast('Payment gateway script loading. Please refresh.');
+      setLoading(false);
+      return;
+    }
+
+    const options = {
+      key: RAZORPAY_KEY,
+      amount: Math.round(Number(total) * 100),
+      currency: 'INR',
+      name: 'LUMÉA BEAUTY',
+      description: `Order Payment for ${orderRef}`,
+      image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+      handler: function (response) {
+        clearCart();
+        showToast('Payment successful! Order confirmed.');
+        navigate(`/order-success?orderId=${encodeURIComponent(orderRef)}`);
+      },
+      prefill: {
+        name: formData.fullName,
+        email: formData.email,
+        contact: formData.phone,
+      },
+      theme: {
+        color: '#2b2622',
+      },
+      modal: {
+        ondismiss: function () {
+          setLoading(false);
+          showToast('Payment cancelled by user.');
+        },
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
 
   const handlePlaceOrder = async (e) => {
@@ -115,7 +157,7 @@ export default function Checkout() {
         },
         payment: {
           id: formData.paymentMethod,
-          method: formData.paymentMethod,
+          method: formData.paymentMethod === 'razorpay' ? 'Razorpay (Online)' : formData.paymentMethod,
           status: 'Pending',
         },
         subtotal: Number(subtotal) || 0,
@@ -128,7 +170,15 @@ export default function Checkout() {
 
       const result = await createOrder(payload);
       const order = result?.order || result;
-      
+      const orderRef = order?.orderId || order?.orderNumber || order?._id || `LUMEA-${Date.now().toString(36).toUpperCase()}`;
+
+      // 1. Pay with Razorpay -> Open Test Gateway Simulator
+      if (formData.paymentMethod === 'razorpay' || formData.paymentMethod === 'card') {
+        openRazorpayCheckout(order, orderRef);
+        return;
+      }
+
+      // 2. Pay with UPI Modal
       if (formData.paymentMethod === 'upi') {
         setPlacedOrder(order);
         setShowUPIModal(true);
@@ -136,8 +186,7 @@ export default function Checkout() {
         return;
       }
 
-      const orderRef = order?.orderId || order?.orderNumber || order?._id || `LUMEA-${Date.now().toString(36).toUpperCase()}`;
-
+      // 3. Cash on Delivery (COD)
       clearCart();
       showToast('Order placed successfully!');
       navigate(`/order-success?orderId=${encodeURIComponent(orderRef)}`);
@@ -190,7 +239,6 @@ export default function Checkout() {
         </div>
 
         <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          {/* Customer & Address Fields */}
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-[#faf8f5] border border-stone-200 p-6 space-y-4">
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
@@ -332,6 +380,16 @@ export default function Checkout() {
                   <input
                     type="radio"
                     name="paymentMethod"
+                    value="razorpay"
+                    checked={formData.paymentMethod === 'razorpay'}
+                    onChange={handleChange}
+                  />
+                  <span className="text-sm text-stone-800 font-medium">Pay Online with Razorpay (Demo • Card / NetBanking / UPI)</span>
+                </label>
+                <label className="flex items-center gap-3 p-3 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
                     value="cod"
                     checked={formData.paymentMethod === 'cod'}
                     onChange={handleChange}
@@ -348,21 +406,10 @@ export default function Checkout() {
                   />
                   <span className="text-sm text-stone-800 font-medium">UPI Payment (Scan QR Code)</span>
                 </label>
-                <label className="flex items-center gap-3 p-3 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="card"
-                    checked={formData.paymentMethod === 'card'}
-                    onChange={handleChange}
-                  />
-                  <span className="text-sm text-stone-800 font-medium">Online Card Payment (Demo)</span>
-                </label>
               </div>
             </div>
           </div>
 
-          {/* Sidebar Summary */}
           <div className="lg:col-span-5">
             <div className="bg-[#faf8f5] border border-stone-200 p-6 sticky top-24 space-y-6">
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
@@ -462,7 +509,6 @@ export default function Checkout() {
         </form>
       </div>
 
-      {/* UPI Payment Modal */}
       {showUPIModal && placedOrder && (
         <UPIPaymentModal
           orderId={placedOrder.orderId || placedOrder._id}
