@@ -9,15 +9,11 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
   const [verifying, setVerifying] = useState(false);
   const { showToast } = useToast();
 
-  // Valid VPA & Clean Merchant Name (No special accents)
-  const upiId = '9082148681@kotak';
-  const cleanName = 'LUMEA BEAUTY';
+  const upiId = '9082148681@kotakbank';
+  const cleanName = 'ZAFAR KHAN AYYUB KHAN';
   const cleanAmount = Number(amount).toFixed(2);
 
-  // Standard NPCI UPI URI
   const upiString = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(cleanName)}&am=${cleanAmount}&cu=INR&tn=${encodeURIComponent(`Order ${orderId}`)}`;
-
-  // High-reliability QR generator (standard encoded URL)
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
 
   const handleCopy = () => {
@@ -52,7 +48,6 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-md w-full overflow-hidden shadow-2xl border border-stone-200">
-        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-stone-200">
           <h2 className="text-base font-serif font-semibold text-stone-900">UPI Payment</h2>
           <button
@@ -64,11 +59,9 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 space-y-5">
           {!paymentVerified ? (
             <>
-              {/* QR Code Section */}
               <div className="text-center">
                 <p className="text-xs uppercase tracking-wider text-stone-500 mb-3">
                   Scan with GPay, PhonePe, or Paytm
@@ -82,7 +75,6 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
                 </div>
               </div>
 
-              {/* Amount Display & VPA Box */}
               <div className="text-center border-t border-b border-stone-200 py-3 space-y-1">
                 <p className="text-xs uppercase tracking-wider text-stone-500">Amount to Pay</p>
                 <p className="text-2xl font-serif font-bold text-stone-900">₹{cleanAmount}</p>
@@ -102,7 +94,6 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
                 </div>
               </div>
 
-              {/* Mobile Direct Pay Button */}
               <div>
                 <a
                   href={upiString}
@@ -112,7 +103,6 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
                 </a>
               </div>
 
-              {/* Confirm Button */}
               <button
                 onClick={handleVerifyPayment}
                 disabled={verifying}
@@ -122,7 +112,6 @@ export default function UPIPaymentModal({ orderId, amount, onPaymentComplete, on
               </button>
             </>
           ) : (
-            /* Success State */
             <div className="text-center py-6 space-y-4">
               <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
                 <Check size={28} />

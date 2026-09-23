@@ -5,8 +5,6 @@ import { useToast } from '../context/ToastContext';
 import { createOrder } from '../services/orderService';
 import UPIPaymentModal from '../components/checkout/UPIPaymentModal';
 
-const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_Tf93J72Y4uL3I8';
-
 export default function Checkout() {
   const navigate = useNavigate();
   const {
@@ -26,9 +24,10 @@ export default function Checkout() {
 
   const [loading, setLoading] = useState(false);
   const [showUPIModal, setShowUPIModal] = useState(false);
-  const [placedOrder, setPlacedOrder] = useState(null);
+  const [pendingPayload, setPendingPayload] = useState(null);
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -39,7 +38,7 @@ export default function Checkout() {
     state: '',
     pincode: '',
     deliveryMethod: 'standard',
-    paymentMethod: 'razorpay',
+    paymentMethod: 'upi',
   });
 
   const handleChange = (e) => {
@@ -64,44 +63,46 @@ export default function Checkout() {
     }
   };
 
-  // Video jaisa Razorpay Checkout Modal
-  const openRazorpayCheckout = (order, orderRef) => {
-    if (!window.Razorpay) {
-      showToast('Payment gateway script loading. Please refresh.');
-      setLoading(false);
-      return;
-    }
-
-    const options = {
-      key: RAZORPAY_KEY,
-      amount: Math.round(Number(total) * 100),
-      currency: 'INR',
-      name: 'LUMÉA BEAUTY',
-      description: `Order Payment for ${orderRef}`,
-      image: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-      handler: function (response) {
-        clearCart();
-        showToast('Payment successful! Order confirmed.');
-        navigate(`/order-success?orderId=${encodeURIComponent(orderRef)}`);
+  const buildPayload = (paymentMethodId, paymentStatus, paymentRef = null) => {
+    return {
+      items: items.map((item) => ({
+        product: item.id,
+        id: item.id,
+        name: item.name,
+        image: item.image,
+        price: Number(item.price),
+        qty: Number(item.qty || 1),
+      })),
+      customer: {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
       },
-      prefill: {
-        name: formData.fullName,
-        email: formData.email,
-        contact: formData.phone,
+      address: {
+        house: formData.house.trim(),
+        street: formData.street.trim(),
+        city: formData.city.trim(),
+        state: formData.state.trim(),
+        pincode: formData.pincode.trim(),
       },
-      theme: {
-        color: '#2b2622',
+      delivery: {
+        id: formData.deliveryMethod,
+        label: formData.deliveryMethod === 'express' ? 'Express Delivery' : 'Standard Delivery',
+        price: Number(shipping) || 0,
       },
-      modal: {
-        ondismiss: function () {
-          setLoading(false);
-          showToast('Payment cancelled by user.');
-        },
+      payment: {
+        id: paymentMethodId,
+        method: paymentMethodId === 'upi' ? 'UPI Payment (Scan QR)' : 'Cash on Delivery (COD)',
+        status: paymentStatus,
+        reference: paymentRef,
       },
+      subtotal: Number(subtotal) || 0,
+      discount: Number(discount) || 0,
+      shipping: Number(shipping) || 0,
+      tax: Number(tax) || 0,
+      total: Number(total) || 0,
+      couponCode: appliedCoupon?.code || null,
     };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
   };
 
   const handlePlaceOrder = async (e) => {
@@ -128,82 +129,60 @@ export default function Checkout() {
 
     setLoading(true);
 
-    try {
-      const payload = {
-        items: items.map((item) => ({
-          product: item.id,
-          id: item.id,
-          name: item.name,
-          image: item.image,
-          price: Number(item.price),
-          qty: Number(item.qty || 1),
-        })),
-        customer: {
-          fullName: formData.fullName.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
-        },
-        address: {
-          house: formData.house.trim(),
-          street: formData.street.trim(),
-          city: formData.city.trim(),
-          state: formData.state.trim(),
-          pincode: formData.pincode.trim(),
-        },
-        delivery: {
-          id: formData.deliveryMethod,
-          label: formData.deliveryMethod === 'express' ? 'Express Delivery' : 'Standard Delivery',
-          price: Number(shipping) || 0,
-        },
-        payment: {
-          id: formData.paymentMethod,
-          method: formData.paymentMethod === 'razorpay' ? 'Razorpay (Online)' : formData.paymentMethod,
-          status: 'Pending',
-        },
-        subtotal: Number(subtotal) || 0,
-        discount: Number(discount) || 0,
-        shipping: Number(shipping) || 0,
-        tax: Number(tax) || 0,
-        total: Number(total) || 0,
-        couponCode: appliedCoupon?.code || null,
-      };
+    // Option 1: UPI Flow (Pehle modal aayega, payment confirm hone par order banega)
+    if (formData.paymentMethod === 'upi') {
+      const payload = buildPayload('upi', 'Pending');
+      setPendingPayload(payload);
+      setShowUPIModal(true);
+      setLoading(false);
+      return;
+    }
 
+    // Option 2: Cash on Delivery (COD)
+    try {
+      const payload = buildPayload('cod', 'Pending');
       const result = await createOrder(payload);
       const order = result?.order || result;
       const orderRef = order?.orderId || order?.orderNumber || order?._id || `LUMEA-${Date.now().toString(36).toUpperCase()}`;
 
-      // 1. Pay with Razorpay -> Open Test Gateway Simulator
-      if (formData.paymentMethod === 'razorpay' || formData.paymentMethod === 'card') {
-        openRazorpayCheckout(order, orderRef);
-        return;
-      }
-
-      // 2. Pay with UPI Modal
-      if (formData.paymentMethod === 'upi') {
-        setPlacedOrder(order);
-        setShowUPIModal(true);
-        setLoading(false);
-        return;
-      }
-
-      // 3. Cash on Delivery (COD)
       clearCart();
-      showToast('Order placed successfully!');
+      showToast('Order placed successfully via COD!');
       navigate(`/order-success?orderId=${encodeURIComponent(orderRef)}`);
     } catch (err) {
       console.error('Order submission failed:', err);
       showToast(err?.message || 'Failed to place order.');
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleUPIPaymentComplete = () => {
-    if (placedOrder) {
-      const orderRef = placedOrder?.orderId || placedOrder?.orderNumber || placedOrder?._id;
+  const handleUPIPaymentComplete = async () => {
+    if (!pendingPayload) return;
+
+    try {
+      setLoading(true);
+      const updatedPayload = {
+        ...pendingPayload,
+        payment: {
+          ...pendingPayload.payment,
+          status: 'Paid',
+          reference: `upi_${Date.now()}`,
+        },
+      };
+
+      const result = await createOrder(updatedPayload);
+      const order = result?.order || result;
+      const orderRef = order?.orderId || order?.orderNumber || order?._id || `LUMEA-${Date.now().toString(36).toUpperCase()}`;
+
       clearCart();
-      showToast('Payment confirmed! Order confirmed!');
       setShowUPIModal(false);
+      showToast('Payment confirmed! Order confirmed!');
       navigate(`/order-success?orderId=${encodeURIComponent(orderRef)}`);
+    } catch (err) {
+      console.error('Order creation failed:', err);
+      showToast('Failed to save order.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -375,28 +354,8 @@ export default function Checkout() {
               <h3 className="text-base font-serif text-stone-900 border-b border-stone-200 pb-3">
                 3. Payment Method
               </h3>
-              <div className="space-y-2">
-                <label className="flex items-center gap-3 p-3 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="razorpay"
-                    checked={formData.paymentMethod === 'razorpay'}
-                    onChange={handleChange}
-                  />
-                  <span className="text-sm text-stone-800 font-medium">Pay Online with Razorpay (Demo • Card / NetBanking / UPI)</span>
-                </label>
-                <label className="flex items-center gap-3 p-3 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cod"
-                    checked={formData.paymentMethod === 'cod'}
-                    onChange={handleChange}
-                  />
-                  <span className="text-sm text-stone-800 font-medium">Cash on Delivery (COD)</span>
-                </label>
-                <label className="flex items-center gap-3 p-3 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 p-3.5 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
                   <input
                     type="radio"
                     name="paymentMethod"
@@ -404,7 +363,24 @@ export default function Checkout() {
                     checked={formData.paymentMethod === 'upi'}
                     onChange={handleChange}
                   />
-                  <span className="text-sm text-stone-800 font-medium">UPI Payment (Scan QR Code)</span>
+                  <div>
+                    <span className="text-sm text-stone-900 font-medium block">UPI Payment (Scan QR Code)</span>
+                    <span className="text-[11px] text-stone-500">Pay via Google Pay, PhonePe, Paytm or any UPI app</span>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 p-3.5 bg-white border border-stone-200 cursor-pointer hover:bg-stone-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={formData.paymentMethod === 'cod'}
+                    onChange={handleChange}
+                  />
+                  <div>
+                    <span className="text-sm text-stone-900 font-medium block">Cash on Delivery (COD)</span>
+                    <span className="text-[11px] text-stone-500">Pay cash upon delivery</span>
+                  </div>
                 </label>
               </div>
             </div>
@@ -427,11 +403,6 @@ export default function Checkout() {
                         }
                         alt={item.name}
                         className="w-12 h-12 object-cover border border-stone-200 bg-white flex-shrink-0"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src =
-                            'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=200&q=80';
-                        }}
                       />
                       <div>
                         <h4 className="text-xs font-medium text-stone-900 line-clamp-1">{item.name}</h4>
@@ -509,12 +480,16 @@ export default function Checkout() {
         </form>
       </div>
 
-      {showUPIModal && placedOrder && (
+      {showUPIModal && (
         <UPIPaymentModal
-          orderId={placedOrder.orderId || placedOrder._id}
+          orderId={`TEMP-${Date.now().toString(36).toUpperCase()}`}
           amount={total}
           onPaymentComplete={handleUPIPaymentComplete}
-          onClose={() => setShowUPIModal(false)}
+          onClose={() => {
+            setShowUPIModal(false);
+            setLoading(false);
+            showToast('UPI payment closed. Order not placed.');
+          }}
         />
       )}
     </>
