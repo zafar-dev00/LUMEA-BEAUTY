@@ -6,7 +6,7 @@ const { onlinePaymentsEnabled, razorpayKeyId, razorpayKeySecret, upi } = require
 
 const getRazorpay = () => {
   if (!onlinePaymentsEnabled || !razorpayKeyId || !razorpayKeySecret) {
-    throw new ApiError(503, 'Online payments are not configured');
+    throw new ApiError(503, 'Online payments are not configured in server environment');
   }
   return new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret });
 };
@@ -23,6 +23,7 @@ const verifyRazorpayPayment = (orderId, paymentId, signature) => {
     .createHmac('sha256', razorpayKeySecret)
     .update(`${orderId}|${paymentId}`)
     .digest('hex');
+
   const signaturesMatch =
     signature.length === expectedSignature.length &&
     crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
@@ -33,21 +34,27 @@ const verifyRazorpayPayment = (orderId, paymentId, signature) => {
   return true;
 };
 
-// POST /api/payments/order
+// POST /api/payment/order (or /api/payments/order)
 const createPaymentOrder = asyncHandler(async (req, res) => {
   const amount = Number(req.body.amount);
   if (!Number.isFinite(amount) || amount <= 0) {
     throw new ApiError(400, 'A valid payment amount is required');
   }
 
+  // Safe receipt generation (Guest checkout support)
+  const userIdentifier = req.user?._id ? String(req.user._id) : 'guest';
+  const receiptId = `rcpt_${userIdentifier}_${Date.now().toString(36)}`;
+
   const paymentOrder = await getRazorpay().orders.create({
-    amount: Math.round(amount * 100),
+    amount: Math.round(amount * 100), // INR to paise conversion
     currency: 'INR',
-    receipt: `lumea_${req.user._id}_${Date.now()}`,
+    receipt: receiptId,
   });
 
   res.status(201).json({
     success: true,
+    // order & paymentOrder dono keys return taaki koi bhi frontend contract match ho sake
+    order: paymentOrder,
     paymentOrder: {
       id: paymentOrder.id,
       amount: paymentOrder.amount,
@@ -57,17 +64,24 @@ const createPaymentOrder = asyncHandler(async (req, res) => {
   });
 });
 
-// POST /api/payments/verify
+// POST /api/payment/verify (or /api/payments/verify)
 const verifyPayment = asyncHandler(async (req, res) => {
   const { razorpay_order_id: orderId, razorpay_payment_id: paymentId, razorpay_signature: signature } = req.body;
+  
   verifyRazorpayPayment(orderId, paymentId, signature);
 
-  res.status(200).json({ success: true, verified: true, orderId, paymentId });
+  res.status(200).json({
+    success: true,
+    verified: true,
+    message: 'Payment verified successfully',
+    orderId,
+    paymentId,
+  });
 });
 
-// GET /api/payments/upi
+// GET /api/payment/upi (or /api/payments/upi)
 const getUPIPayment = asyncHandler(async (req, res) => {
-  if (!upi.enabled) {
+  if (!upi?.enabled) {
     throw new ApiError(503, 'UPI payments are not configured');
   }
 
@@ -89,4 +103,9 @@ const getUPIPayment = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { createPaymentOrder, verifyPayment, verifyRazorpayPayment, getUPIPayment };
+module.exports = {
+  createPaymentOrder,
+  verifyPayment,
+  verifyRazorpayPayment,
+  getUPIPayment,
+};
