@@ -18,9 +18,11 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/orders', orderRoutes);
 router.use('/coupons', couponRoutes);
-router.use('/payments', paymentRoutes);
-router.use('/admin', adminRoutes); // every route here requires JWT + ADMIN role
 
-// Future route modules (payments, etc.) will be mounted here in later phases.
+// Mounting both singular and plural paths to eliminate 404 mismatch
+router.use('/payments', paymentRoutes);
+router.use('/payment', paymentRoutes);
+
+router.use('/admin', adminRoutes); // every route here requires JWT + ADMIN role
 
 module.exports = router;

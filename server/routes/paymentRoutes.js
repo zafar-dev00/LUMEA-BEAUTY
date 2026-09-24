@@ -7,15 +7,15 @@ const {
 
 const router = express.Router();
 
-// Order creation (Dono aliases support karein)
+// POST /api/payment/order
 router.post('/order', createPaymentOrder);
 router.post('/razorpay-order', createPaymentOrder);
 
-// Verification
+// POST /api/payment/verify
 router.post('/verify', verifyPayment);
 router.post('/verify-razorpay', verifyPayment);
 
-// UPI
+// GET /api/payment/upi
 router.get('/upi', getUPIPayment);
 
 module.exports = router;
