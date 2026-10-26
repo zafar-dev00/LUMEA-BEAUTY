@@ -89,7 +89,7 @@ export default function Cart() {
                     </div>
 
                     <span className="text-sm font-serif font-semibold text-stone-900 min-w-[4rem] text-right">
-                      ${(price * qty).toFixed(2)}
+                      ₹{(price * qty).toFixed(2)}
                     </span>
 
                     <button

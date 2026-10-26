@@ -81,7 +81,7 @@ export default function Navbar() {
     <>
       <header className="sticky top-0 z-40 bg-ivory/95 backdrop-blur border-b border-nude/40">
         <div className="border-b border-nude/40 bg-charcoal text-ivory text-center text-[11px] tracking-luxe uppercase py-2 px-4">
-          Free shipping on all orders over $75
+          FREE SHIPPING ON ALL ORDERS OVER ₹99
         </div>
 
         <nav className="container-luxe flex items-center justify-between h-20">
